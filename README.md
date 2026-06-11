@@ -64,26 +64,7 @@ It is designed for rapid logging of daily expenses (meals, auto/metro rides, cus
 ```
 spendly/
 ├── client/                 # Frontend React + Vite SPA
-│   ├── public/             # Static public resources
-│   ├── src/
-│   │   ├── components/     # Layout overlays (Topbar, Bottom Nav, Sheets, Modals)
-│   │   ├── pages/          # Screens (Dashboard, Statement, Analytics, Calculator, Profile, Auth)
-│   │   ├── utils/          # Axios configuration with JWT Interceptors
-│   │   ├── index.css       # Tailwind v4 globals & custom animations
-│   │   ├── App.jsx         # App router and central state container
-│   │   └── main.jsx        # App entry point
-│   ├── package.json        # Frontend scripts and package details
-│   ├── postcss.config.js   # Dev configuration
-│   └── vite.config.js      # Vite config utilizing @tailwindcss/vite
 ├── server/                 # Backend Node + Express API
-│   ├── config/             # Database connection setups
-│   ├── controllers/        # Route controllers (Auth, Expenses, Categories, Analytics, Export)
-│   ├── middleware/         # Session verification protect middleware
-│   ├── models/             # Mongoose database models (User, Expense, Category)
-│   ├── routes/             # REST endpoints route declarations
-│   ├── utils/              # Nodemailer templates and OTP tools
-│   ├── server.js           # Server initializer
-│   └── package.json        # Server scripts and dependencies
 ├── vercel.json             # Monorepo single-deployment configurations for Vercel
 ├── .gitignore              # Ignoring node_modules and local environment configurations
 └── README.md               # App documentation
@@ -101,11 +82,14 @@ Create a `.env` file inside the `server/` directory and configure the variables:
 | `PORT` | Local server listening port | `5000` |
 | `NODE_ENV` | Mode of operation | `development` or `production` |
 | `JWT_SECRET` | Secure string for signing JWTs | `supersecretpassphrasestring` |
-| `MONGODB_URI` | Database connection URL | `mongodb://localhost:27017/spendly` |
+| `JWT_EXPIRES_IN`| Token expiry duration | `30d` |
+| `MONGODB_URI` | Database connection URL (Required in production) | `mongodb+srv://...` |
+| `CLIENT_URL` | Frontend URL for CORS whitelisting | `https://spendly.vercel.app` |
 | `SMTP_HOST` | Email SMTP host address | `smtp.gmail.com` |
 | `SMTP_PORT` | Email SMTP port number | `587` |
 | `SMTP_USER` | Email account for OTP delivery | `your_address@gmail.com` |
 | `SMTP_PASS` | Gmail app password | `xxxx xxxx xxxx xxxx` |
+| `SMTP_FROM` | Sender Name <email> template | `"Spendly Finance" <your_address@gmail.com>` |
 
 ### Frontend Client (`client/`)
 Create a `.env` file inside the `client/` directory (optional):
@@ -113,6 +97,39 @@ Create a `.env` file inside the `client/` directory (optional):
 | Variable | Description | Example / Default |
 | :--- | :--- | :--- |
 | `VITE_API_URL` | Destination address for REST calls | `http://localhost:5000/api` |
+
+---
+
+## MongoDB Atlas Database Setup
+
+> [!IMPORTANT]
+> **Production Database Rule**: Production instances (e.g. running on Vercel/Render) **MUST** connect to a cloud MongoDB Atlas instance. Local `localhost` MongoDB connection URIs will fail when hosted on serverless providers.
+
+To set up your cloud database:
+
+1. **Create a Free Cluster**:
+   - Go to [MongoDB Atlas](https://www.mongodb.com/cloud/atlas) and register a free account.
+   - Click **Create Database** and select the **M0 Shared Free Tier** cluster option.
+   - Choose your nearest cloud provider region (e.g., AWS / Mumbai or N. Virginia) and click **Create**.
+
+2. **Configure Database Access User**:
+   - In the Security section on the left sidebar, click **Database Access**.
+   - Click **Add New Database User**.
+   - Set Authentication Method to **Password**. Enter a Username (e.g. `spendly_admin`) and a secure Password.
+   - Assign user privileges as **Read and write to any database**. Click **Add User**.
+
+3. **Configure Network IP Access (Whitelist)**:
+   - In the Security section, click **Network Access**.
+   - Click **Add IP Address**.
+   - Click **Allow Access from Anywhere** (this writes `0.0.0.0/0` to your whitelist). This is required because serverless hosting providers (like Render or Vercel) route traffic from dynamically changing IP addresses.
+   - Click **Confirm**.
+
+4. **Retrieve Connection URI String**:
+   - Navigate back to the **Database / Clusters** tab and click **Connect**.
+   - Select **Drivers** under connection methods.
+   - Copy the provided connection string (URI), which looks like:
+     `mongodb+srv://<username>:<password>@cluster0.xxxx.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`
+   - Paste this string into your backend environment configuration as the `MONGODB_URI` value, replacing `<username>` and `<password>` with your database user credentials.
 
 ---
 
@@ -144,63 +161,59 @@ Create a `.env` file inside the `client/` directory (optional):
 
 ## Backend API Endpoints
 
-All endpoints (except signup, verification, login, forgot password) require an `Authorization: Bearer <JWT_Token>` request header.
+All endpoints (except signup, verification, login, forgot password, health check) require an `Authorization: Bearer <JWT_Token>` request header.
 
-### 1. Authentication
-* `POST /api/auth/signup` - Register user. Requires name, valid email, and password (min 6 characters).
-* `POST /api/auth/verify-otp` - Verify email. Activates account, seeds default categories, and returns JWT.
-* `POST /api/auth/login` - Validate credentials. Sends fresh OTP if account is not yet verified.
+* `GET /api/health` - Public endpoint checking database connection state.
+* `POST /api/auth/signup` - Register user.
+* `POST /api/auth/verify-otp` - Verify email OTP code.
+* `POST /api/auth/login` - Validate credentials.
 * `POST /api/auth/forgot-password` - Requests reset password OTP code.
-* `POST /api/auth/reset-password` - Checks recovery OTP and writes new password (min 6 characters).
+* `POST /api/auth/reset-password` - Checks recovery OTP and writes new password.
 * `GET /api/auth/me` - Validates session.
-
-### 2. Expenses
-* `GET /api/expenses` - Get expenses. Params: `from`, `to`, `category`, `paymentMode`, `minAmount`, `maxAmount`, `search`.
-* `POST /api/expenses` - Create expense.
-* `GET /api/expenses/:id` - Fetch single entry.
+* `GET /api/expenses` - Get user-scoped expenses. Params: `from`, `to`, `category`, `paymentMode`, `minAmount`, `maxAmount`, `search`.
+* `POST /api/expenses` - Log an expense.
 * `PUT /api/expenses/:id` - Edit expense details.
 * `DELETE /api/expenses/:id` - Erase expense record.
-
-### 3. Categories
-* `GET /api/categories` - Returns combined default system categories and user-specific custom ones.
-* `POST /api/categories` - Create custom category label. Prevents duplicates.
-* `PUT /api/categories/:id` - Update custom category name. (Fails on system default categories).
-* `DELETE /api/categories/:id` - Remove custom category. (Fails on system default categories).
-
-### 4. Analytics & Calculations
-* `GET /api/analytics/summary` - Today/month total and 5 recent logs.
+* `GET /api/categories` - Returns combined system default and custom categories.
+* `POST /api/categories` - Create custom category.
+* `DELETE /api/categories/:id` - Remove custom category.
+* `GET /api/analytics/summary` - Today/month total and recent logs.
 * `GET /api/analytics/category-total` - Spending sums sorted by category.
 * `GET /api/analytics/monthly` - Spending history totals for the past 6 months.
-* `GET /api/analytics/custom-total` - Formulated calculators. Requires `from`, `to`, and `category`.
-
-### 5. Exports
-* `GET /api/export/excel` - Returns structured, formatted spreadsheet streams conforming to selected filters.
+* `GET /api/analytics/custom-total` - Formulated calculator values.
+* `GET /api/export/excel` - Returns formatted Excel sheet streams of statements.
 
 ---
 
 ## Deployment Guide
 
-### Database Setup (MongoDB Atlas)
-1. Register at [MongoDB Atlas](https://www.mongodb.com/cloud/atlas).
-2. Create a Free tier Cluster, add a Database User with password, and allow IP connection requests from anywhere (`0.0.0.0/0`).
-3. Copy the cluster connection string to your backend environment configurations.
+### Backend API (Render or Railway)
+For hosting the Node/Express backend:
 
-### Recommended Split Deployments
-Because full-stack Express monoliths inside serverless Vercel setups can exceed memory limits or have cold starts:
+1. **Repository Linking**:
+   - Create a Web Service on Render or a project on Railway and link your GitHub repository.
+2. **Path Scope**:
+   - Set the root directory/scope of the build to `server/`.
+3. **Execution Commands**:
+   - Start command: `npm start` (this runs production-safe `node server.js` as defined in package.json).
+4. **Environment Variables**:
+   - Add all key-value parameters from your `server/.env` file. Ensure `NODE_ENV` is set to `production` and `MONGODB_URI` points to your MongoDB Atlas cluster.
+5. **Base URL**:
+   - Copy the generated endpoint URL (e.g. `https://spendly-api.onrender.com`).
 
-#### Backend API (Render or Railway)
-1. Link your project on Render/Railway.
-2. Set directory root to `server/`.
-3. Set Start command: `npm start`.
-4. Add environment variables from your `.env` configuration.
-5. Copy the live API URL (e.g. `https://spendly-api.onrender.com`).
+### Frontend Client (Vercel)
+For hosting the static React SPA:
 
-#### Frontend Client (Vercel)
-1. Deploy on Vercel.
-2. Set directory root to `client/`.
-3. Select configuration as Vite / React.
-4. Add Environment Variable: `VITE_API_URL=https://spendly-api.onrender.com/api`.
-5. Deploy.
+1. **Deployment Creation**:
+   - Import the repository on Vercel.
+2. **Path Scope**:
+   - Set the root directory of the build to `client/`.
+3. **Build Settings**:
+   - Select Vite framework presets. Vercel automatically runs `npm run build` and scopes the output to the `dist` directory.
+4. **Environment Variables**:
+   - Add the variable `VITE_API_URL` pointing to your hosted backend (e.g., `https://spendly-api.onrender.com/api`).
+5. **Launch**:
+   - Trigger the deploy build. Copy the production link (e.g. `https://spendly.vercel.app`) and add it to your Render/Railway backend settings as `CLIENT_URL` to update CORS permissions.
 
 ---
 

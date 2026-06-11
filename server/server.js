@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import mongoose from 'mongoose';
 import connectDB from './config/db.js';
 import authRoutes from './routes/auth.routes.js';
 import expenseRoutes from './routes/expense.routes.js';
@@ -16,12 +17,26 @@ connectDB();
 
 const app = express();
 
-// Middleware
+// Middleware - Setup restricted CORS origins for local and production deployment
+const allowedOrigins = ['http://localhost:5173'];
+if (process.env.CLIENT_URL) {
+  allowedOrigins.push(process.env.CLIENT_URL);
+}
+
 app.use(cors({
-  origin: '*', // Allow all origins for dev/testing, customize in production
+  origin: function (origin, callback) {
+    if (!origin) return callback(null, true); // Allow non-browser requests
+    if (allowedOrigins.includes(origin) || process.env.NODE_ENV === 'development') {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true,
 }));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -32,7 +47,18 @@ app.use('/api/categories', categoryRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/export', exportRoutes);
 
-// Base Route / Health check
+// Health Check Route
+app.get('/api/health', (req, res) => {
+  const dbState = mongoose.connection.readyState === 1 ? 'connected' : 'disconnected';
+  res.status(200).json({
+    status: 'ok',
+    app: 'Spendly',
+    database: dbState,
+    timestamp: new Date().toISOString(),
+  });
+});
+
+// Base Route
 app.get('/', (req, res) => {
   res.status(200).json({ message: 'Spendly API is running smoothly' });
 });
