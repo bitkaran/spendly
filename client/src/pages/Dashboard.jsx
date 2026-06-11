@@ -186,7 +186,7 @@ const Dashboard = ({ onOpenAddSheet, triggerRerender, categories = [] }) => {
           </p>
           <h3 className="text-xl font-extrabold text-slate-900 dark:text-white mt-1 flex items-baseline font-sans">
             <span className="text-sm font-semibold mr-0.5">₹</span>
-            {summary.todayTotal.toLocaleString('en-IN', { minimumFractionDigits: 0 })}
+            {(summary.todayTotal || 0).toLocaleString('en-IN', { minimumFractionDigits: 0 })}
           </h3>
           <span className="text-[10px] text-slate-400 dark:text-slate-500 mt-1 block">
             Today's total expenses
@@ -203,24 +203,24 @@ const Dashboard = ({ onOpenAddSheet, triggerRerender, categories = [] }) => {
           </p>
           <h3 className="text-xl font-extrabold text-slate-900 dark:text-white mt-1 flex items-baseline font-sans">
             <span className="text-sm font-semibold mr-0.5">₹</span>
-            {summary.monthTotal.toLocaleString('en-IN', { minimumFractionDigits: 0 })}
+            {(summary.monthTotal || 0).toLocaleString('en-IN', { minimumFractionDigits: 0 })}
           </h3>
           <span className="text-[10px] text-slate-400 dark:text-slate-500 mt-1 block">
-            June's total expenses
+            This month's total expenses
           </span>
         </div>
       </div>
 
       {/* Category distribution panel */}
-      {categoryTotals.length > 0 && (
+      {((categoryTotals || []).length > 0) && (
         <div className="bg-white dark:bg-darkCard rounded-3xl p-4 border border-slate-100 dark:border-darkBorder/40 shadow-premium dark:shadow-premium-dark">
           <h3 className="text-sm font-bold text-slate-800 dark:text-white mb-3">
             Top Categories
           </h3>
           <div className="space-y-3.5">
-            {categoryTotals.slice(0, 3).map((item, idx) => {
+            {(categoryTotals || []).slice(0, 3).map((item, idx) => {
               // Calculate percentages
-              const maxVal = categoryTotals[0]?.value || 1;
+              const maxVal = (categoryTotals || [])[0]?.value || 1;
               const percent = (item.value / maxVal) * 100;
               return (
                 <div key={idx} className="space-y-1">
@@ -264,7 +264,7 @@ const Dashboard = ({ onOpenAddSheet, triggerRerender, categories = [] }) => {
             >
               All
             </button>
-            {categories.slice(0, 3).map((cat) => (
+            {(categories || []).slice(0, 3).map((cat) => (
               <button
                 key={cat._id}
                 onClick={() => setSelectedCategory(cat.name)}
@@ -281,7 +281,7 @@ const Dashboard = ({ onOpenAddSheet, triggerRerender, categories = [] }) => {
         </div>
 
         {/* Expenses List */}
-        {filteredExpenses.length === 0 ? (
+        {(!filteredExpenses || filteredExpenses.length === 0) ? (
           <div className="bg-white dark:bg-darkCard border border-slate-100 dark:border-darkBorder/40 rounded-3xl p-8 text-center flex flex-col items-center justify-center">
             <div className="h-12 w-12 bg-slate-550/5 dark:bg-slate-400/5 text-slate-400 dark:text-slate-500 rounded-full flex items-center justify-center mb-3">
               <Tag className="h-6 w-6" />
@@ -293,7 +293,7 @@ const Dashboard = ({ onOpenAddSheet, triggerRerender, categories = [] }) => {
           </div>
         ) : (
           <div className="bg-white dark:bg-darkCard border border-slate-100 dark:border-darkBorder/40 rounded-3xl divide-y divide-slate-100 dark:divide-darkBorder/35 shadow-premium dark:shadow-premium-dark overflow-hidden">
-            {filteredExpenses.map((expense) => (
+            {(filteredExpenses || []).map((expense) => (
               <div
                 key={expense._id}
                 className="p-4 flex items-center justify-between hover:bg-slate-50/50 dark:hover:bg-slate-800/10 transition"
@@ -320,10 +320,10 @@ const Dashboard = ({ onOpenAddSheet, triggerRerender, categories = [] }) => {
                         {expense.paymentMode}
                       </span>
                       <span className="text-[9px] text-slate-400">
-                        {new Date(expense.date).toLocaleDateString('en-IN', {
+                        {expense.date ? new Date(expense.date).toLocaleDateString('en-IN', {
                           month: 'short',
                           day: 'numeric',
-                        })}
+                        }) : '-'}
                       </span>
                     </div>
                   </div>

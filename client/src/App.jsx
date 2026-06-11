@@ -122,7 +122,7 @@ function AppContent() {
   return (
     <div className="min-h-screen bg-slate-100 dark:bg-slate-950 flex items-center justify-center py-0 sm:py-6">
       {/* Mobile Chassis Device frame on Desktop */}
-      <div className="w-full max-w-md min-h-screen sm:min-h-[85vh] sm:h-[820px] bg-slate-50 dark:bg-darkBg sm:rounded-[40px] sm:shadow-2xl flex flex-col justify-between overflow-hidden border border-slate-200/50 dark:border-darkBorder/40 relative sm:ring-8 sm:ring-slate-900/5">
+      <div className="w-full max-w-md min-h-screen sm:h-[90vh] sm:max-h-[800px] bg-slate-50 dark:bg-darkBg sm:rounded-[40px] sm:shadow-2xl flex flex-col justify-between overflow-hidden border border-slate-200/50 dark:border-darkBorder/40 relative sm:ring-8 sm:ring-slate-900/5">
         
         {/* Topbar Layout */}
         <Topbar darkMode={darkMode} toggleDarkMode={toggleDarkMode} user={user} />
@@ -258,7 +258,7 @@ function AppContent() {
         {isLoggedIn && <Navbar onAddClick={() => handleOpenAddSheet(null)} />}
 
         {/* Floating Calculator Shortcut (on Dashboard & Analytics) */}
-        {isLoggedIn && ['/', '/analytics'].includes(window.location.pathname) && (
+        {isLoggedIn && ['/', '/analytics'].includes(location.pathname) && (
           <button
             onClick={() => navigate('/calculator')}
             className="absolute bottom-20 right-4 p-3 bg-white dark:bg-darkCard hover:bg-slate-50 text-indigo-600 dark:text-indigo-400 border border-slate-100 dark:border-darkBorder/40 rounded-full shadow-lg hover:shadow-indigo-500/10 active:scale-95 transition"

@@ -6,6 +6,15 @@ import toast from 'react-hot-toast';
 
 const COLORS = ['#6366f1', '#10b981', '#f59e0b', '#3b82f6', '#ec4899', '#8b5cf6', '#ef4444', '#14b8a6'];
 
+// Mock ResizeObserver for headless browser testing environments (e.g. Playwright, Puppeteer)
+if (typeof window !== 'undefined' && !window.ResizeObserver) {
+  window.ResizeObserver = class ResizeObserver {
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+  };
+}
+
 const Analytics = ({ triggerRerender }) => {
   const [categoryData, setCategoryData] = useState([]);
   const [monthlyData, setMonthlyData] = useState([]);
@@ -67,24 +76,27 @@ const Analytics = ({ triggerRerender }) => {
         { name: 'Other', amount: otherTotal, fill: '#f59e0b' },
       ]);
 
-      // 2. Daily spending trend (last 10 days with expenses)
+      // 2. Daily spending trend (last 10 days with expenses, chronological)
+      const sortedExpenses = [...allExpenses].sort((a, b) => new Date(a.date) - new Date(b.date));
+      const dailyTrendList = [];
       const dailyMap = {};
-      allExpenses.forEach((exp) => {
+
+      sortedExpenses.forEach((exp) => {
+        if (!exp.date) return;
         const dateObj = new Date(exp.date);
         const dayStr = dateObj.toLocaleDateString('en-IN', { month: 'short', day: '2-digit' });
-        dailyMap[dayStr] = (dailyMap[dayStr] || 0) + exp.amount;
+        
+        if (!dailyMap[dayStr]) {
+          dailyMap[dayStr] = 0;
+          dailyTrendList.push(dayStr);
+        }
+        dailyMap[dayStr] += exp.amount;
       });
 
-      // Convert map to sorted array (chronological order)
-      const dailyTrend = Object.keys(dailyMap)
-        .map((day) => ({
-          day,
-          amount: dailyMap[day],
-          // Keep raw date for sorting
-          rawDate: new Date(day + ' ' + new Date().getFullYear()),
-        }))
-        .sort((a, b) => a.rawDate - b.rawDate)
-        .slice(-10); // show last 10 days
+      const dailyTrend = dailyTrendList.map((day) => ({
+        day,
+        amount: dailyMap[day],
+      })).slice(-10);
 
       setDailyData(dailyTrend);
     } catch (error) {
