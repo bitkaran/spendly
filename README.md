@@ -175,9 +175,46 @@ All endpoints (except signup, login, health check) require an `Authorization: Be
 
 ---
 
-## Render Backend Deployment Guide
+## Vercel Full-Stack Monorepo Deployment Guide (Main)
 
-To deploy the Node.js/Express backend on **Render**:
+To deploy both the frontend React app and backend Node.js Serverless APIs on **Vercel**:
+
+### 1. Import Project on Vercel
+1. Log in to your [Vercel Project Dashboard](https://vercel.com/).
+2. Select **Add New > Project** and import your repository: **`bitkaran/spendly`**.
+
+### 2. Configure Monorepo Settings
+Specify the following configuration in the creation form:
+* **Framework Preset**: Keep as **Other** (Vercel will automatically read `vercel.json` at the root).
+* **Root Directory**: Keep as the root directory `./` (do not change it to `client` or `server`).
+
+### 3. Add Production Environment Variables
+Click **Environment Variables** and add the following keys:
+
+| Key | Value | Example |
+| :--- | :--- | :--- |
+| `NODE_ENV` | `production` | Node environment |
+| `MONGODB_URI` | *Your MongoDB Atlas connection string* | `mongodb+srv://...` |
+| `JWT_SECRET` | *A long secure random secret key* | `your_long_secure_secret_passphrase_here` |
+| `JWT_EXPIRES_IN` | `7d` | Token expiry duration |
+| `CLIENT_URL` | *Your Vercel deployment URL* | `https://spendly.vercel.app` |
+| `SMTP_HOST` | `smtp.gmail.com` | SMTP host address |
+| `SMTP_PORT` | `587` | SMTP port number |
+| `SMTP_USER` | *Your email address* | `your_email@gmail.com` |
+| `SMTP_PASS` | *Your Gmail app password* | `xxxx xxxx xxxx xxxx` |
+| `SMTP_FROM` | *Your email template* | `Spendly <your_email@gmail.com>` |
+
+### 4. Deploy and Verify
+* Click **Deploy**. Vercel will build your static client assets and construct serverless API functions automatically.
+* Once the build completes, visit your live app's health endpoint:
+  `https://your-vercel-app-name.vercel.app/api/health`
+* Confirm the JSON payload returns database status `"connected"`.
+
+---
+
+## Render Backend Deployment Guide (Optional)
+
+To deploy the Node.js/Express backend on **Render** instead:
 
 ### 1. Create Web Service
 1. Log in to your [Render Dashboard](https://dashboard.render.com/).
@@ -185,27 +222,14 @@ To deploy the Node.js/Express backend on **Render**:
 3. Link your GitHub account and select your repository: **`bitkaran/spendly`**.
 
 ### 2. Configure Service Settings
-Specify the following configuration in the creation form:
-* **Name**: `spendly-backend` (or your preferred name)
-* **Region**: Select a region closest to your database (e.g., Singapore or Oregon)
-* **Branch**: `main`
 * **Root Directory**: `server`
 * **Runtime**: `Node`
 * **Build Command**: `npm install`
 * **Start Command**: `npm start`
-* **Instance Type**: Select **Free** tier (or paid if preferred)
+* **Instance Type**: Select **Free** tier
 
-### 3. Add Production Environment Variables
-Click **Advanced** or navigate to the service's **Environment** tab and add the following keys:
-
-| Key | Value | Example |
-| :--- | :--- | :--- |
-| `NODE_ENV` | `production` | Node environment |
-| `PORT` | `10000` | Render port routing |
-| `MONGODB_URI` | *Your MongoDB Atlas connection string* | `mongodb+srv://...` |
-| `JWT_SECRET` | *A long random secure string* | `your_long_secure_secret_passphrase_here` |
-| `JWT_EXPIRES_IN` | `7d` | Token expiry duration |
-| `CLIENT_URL` | *Your Vercel frontend URL after client deployment* | `https://spendly.vercel.app` |
+### 3. Add Environment Variables
+* Configure `NODE_ENV`, `PORT` = `10000`, `MONGODB_URI`, `JWT_SECRET`, `JWT_EXPIRES_IN`, and `CLIENT_URL`.
 
 ---
 
@@ -214,15 +238,15 @@ Click **Advanced** or navigate to the service's **Environment** tab and add the 
 > [!CAUTION]
 > **Safety Regulations**:
 > 1. **MongoDB Connection**: Never connect the production instance to a local `localhost` database. You must utilize MongoDB Atlas.
-> 2. **Environment Variables**: Never commit `.env` files into source control repositories. Always add credentials inside the Render project dashboard.
+> 2. **Environment Variables**: Never commit `.env` files into source control repositories. Always add credentials inside the Vercel/Render project dashboard.
 
 ---
 
 ## Deployment Health Verification
 
-After the Render build succeeds and deployment status marks **Live**:
+After the Vercel deployment succeeds and status marks **Ready** / **Live**:
 1. Open a browser or postman client and send a GET request to:
-   `https://spendly-backend.onrender.com/api/health` (replace `spendly-backend` with your service's subdomain).
+   `https://your-vercel-app-name.vercel.app/api/health`
 2. Confirm the response returns status `200` with the following structure:
    ```json
    {

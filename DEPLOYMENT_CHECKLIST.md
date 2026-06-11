@@ -28,48 +28,33 @@ Use this step-by-step checklist to configure, deploy, and verify the production 
 
 ---
 
-## 2. Render Backend API Deployment
+## 2. Vercel Full-Stack Monorepo Deployment
 
-- [ ] **Connect Repository**:
-  - Log in to [Render Dashboard](https://dashboard.render.com/).
-  - Click **New + > Web Service** and authorize/link your GitHub repository **`bitkaran/spendly`**.
-- [ ] **Configure Build Parameters**:
-  - Set **Root Directory** as `server`.
-  - Set **Runtime** to `Node`.
-  - Set **Build Command** to `npm install`.
-  - Set **Start Command** to `npm start`.
-  - Set **Instance Type** to `Free` tier.
+- [ ] **Import Repository**:
+  - Log in to your [Vercel Project Dashboard](https://vercel.com/).
+  - Select **Add New > Project** and import the repository **`bitkaran/spendly`**.
+- [ ] **Configure Build and Settings**:
+  - Keep the **Root Directory** as the root of the project `./` (do not change it to `client` or `server`).
+  - Vercel will automatically read `vercel.json` to configure frontend static building and serverless API compilation.
 - [ ] **Configure Environment Variables**:
-  Add the following parameters inside the environment configuration panel:
+  Add the following parameters inside the environment configuration panel on Vercel:
   - `NODE_ENV` = `production`
-  - `PORT` = `10000`
   - `MONGODB_URI` = *Your MongoDB Atlas connection URI retrieved in Step 1*
   - `JWT_SECRET` = *A long secure random secret key passphrase*
   - `JWT_EXPIRES_IN` = `7d`
-  - `CLIENT_URL` = *Your Vercel frontend URL (leave blank or use placeholders initially, update after Vercel deployment completes)*
-- [ ] **Verify Live Status**:
-  - Trigger build. Once the status shows **Live**, verify backend health by sending a GET request in a browser to:
-    `https://your-service-name.onrender.com/api/health`
-  - Confirm the JSON payload returns database status `"connected"`.
-
----
-
-## 3. Vercel Frontend Client Deployment
-
-- [ ] **Connect Repository**:
-  - Log in to your [Vercel Project Dashboard](https://vercel.com/).
-  - Select **Add New > Project** and import the repository **`bitkaran/spendly`**.
-- [ ] **Configure Build Settings**:
-  - Set **Root Directory** to `client`.
-  - Ensure the framework preset is set to **Vite**.
-  - Verify Build Command is `npm run build`.
-  - Verify Output Directory is `dist`.
-- [ ] **Configure Environment Variables**:
-  - Add the key **`VITE_API_URL`** and set its value to your Render backend API endpoint:
-    `https://your-service-name.onrender.com/api` (ensure it includes the `/api` prefix).
+  - `CLIENT_URL` = *Your Vercel deployment URL (e.g. `https://spendly.vercel.app`)*
+  - `SMTP_HOST` = `smtp.gmail.com`
+  - `SMTP_PORT` = `587`
+  - `SMTP_USER` = *Your email address*
+  - `SMTP_PASS` = *Your Gmail app password*
+  - `SMTP_FROM` = `Spendly <your_email_address>`
 - [ ] **Deploy Application**:
-  - Click **Deploy**. Vercel will compile the React bundle and host the files.
-  - Copy the generated live Vercel URL (e.g. `https://spendly.vercel.app`).
+  - Click **Deploy**. Vercel will compile the React bundle and backend serverless endpoints.
+  - Copy the generated live Vercel URL.
+- [ ] **Verify Live API Health**:
+  - Visit the live health check endpoint:
+    `https://your-vercel-app-name.vercel.app/api/health`
+  - Confirm the JSON payload returns database status `"connected"`.
 
 ---
 
@@ -92,6 +77,6 @@ Perform a manual E2E check on the live Vercel URL:
 
 > [!CAUTION]
 > **Production Guidelines**:
-> 1. **No local fallbacks**: Never attempt to run local database instances (`localhost`) in hosted production environments.
+> 1. **No local database fallbacks**: Never attempt to run local database instances (`localhost`) in hosted production environments.
 > 2. **Environment Protection**: Never check in `.env` credentials files to GitHub. Only share `.env.example` templates.
-> 3. **CORS Restrictions**: After your Vercel frontend URL is active, update the `CLIENT_URL` environment variable inside your Render Web Service dashboard to restrict unauthorized domains.
+> 3. **CORS / Client URL**: Update the `CLIENT_URL` environment variable inside your Vercel project settings to match your custom domain or production subdomain to secure cookies and token settings.

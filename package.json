@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Monorepo root for Spendly - Premium Expense Tracker app",
   "private": true,
+  "type": "module",
   "scripts": {
     "install:all": "npm install && npm install --prefix client && npm install --prefix server",
     "dev:client": "npm run dev --prefix client",
