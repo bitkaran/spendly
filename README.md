@@ -121,7 +121,7 @@ To set up your cloud database:
 3. **Configure Network IP Access (Whitelist)**:
    - In the Security section, click **Network Access**.
    - Click **Add IP Address**.
-   - Click **Allow Access from Anywhere** (this writes `0.0.0.0/0` to your whitelist). This is required because serverless hosting providers (like Render or Vercel) route traffic from dynamically changing IP addresses.
+   - Click **Allow Access from Anywhere** (this writes `0.0.0.0/0` to your whitelist). This is required because serverless hosting providers route traffic from dynamically changing IP addresses.
    - Click **Confirm**.
 
 4. **Retrieve Connection URI String**:
@@ -185,35 +185,70 @@ All endpoints (except signup, verification, login, forgot password, health check
 
 ---
 
-## Deployment Guide
+## Render Backend Deployment Guide
 
-### Backend API (Render or Railway)
-For hosting the Node/Express backend:
+To deploy the Node.js/Express backend on **Render**:
 
-1. **Repository Linking**:
-   - Create a Web Service on Render or a project on Railway and link your GitHub repository.
-2. **Path Scope**:
-   - Set the root directory/scope of the build to `server/`.
-3. **Execution Commands**:
-   - Start command: `npm start` (this runs production-safe `node server.js` as defined in package.json).
-4. **Environment Variables**:
-   - Add all key-value parameters from your `server/.env` file. Ensure `NODE_ENV` is set to `production` and `MONGODB_URI` points to your MongoDB Atlas cluster.
-5. **Base URL**:
-   - Copy the generated endpoint URL (e.g. `https://spendly-api.onrender.com`).
+### 1. Create Web Service
+1. Log in to your [Render Dashboard](https://dashboard.render.com/).
+2. Click **New +** and select **Web Service**.
+3. Link your GitHub account and select your repository: **`bitkaran/spendly`**.
 
-### Frontend Client (Vercel)
-For hosting the static React SPA:
+### 2. Configure Service Settings
+Specify the following configuration in the creation form:
+* **Name**: `spendly-backend` (or your preferred name)
+* **Region**: Select a region closest to your database (e.g., Singapore or Oregon)
+* **Branch**: `main`
+* **Root Directory**: `server`
+* **Runtime**: `Node`
+* **Build Command**: `npm install`
+* **Start Command**: `npm start`
+* **Instance Type**: Select **Free** tier (or paid if preferred)
 
-1. **Deployment Creation**:
-   - Import the repository on Vercel.
-2. **Path Scope**:
-   - Set the root directory of the build to `client/`.
-3. **Build Settings**:
-   - Select Vite framework presets. Vercel automatically runs `npm run build` and scopes the output to the `dist` directory.
-4. **Environment Variables**:
-   - Add the variable `VITE_API_URL` pointing to your hosted backend (e.g., `https://spendly-api.onrender.com/api`).
-5. **Launch**:
-   - Trigger the deploy build. Copy the production link (e.g. `https://spendly.vercel.app`) and add it to your Render/Railway backend settings as `CLIENT_URL` to update CORS permissions.
+### 3. Add Production Environment Variables
+Click **Advanced** or navigate to the service's **Environment** tab and add the following keys:
+
+| Key | Value | Example |
+| :--- | :--- | :--- |
+| `NODE_ENV` | `production` | Enables secure OTP payload masking |
+| `PORT` | `10000` | Render port routing |
+| `MONGODB_URI` | *Your MongoDB Atlas connection string* | `mongodb+srv://...` |
+| `JWT_SECRET` | *A long random secure string* | `your_long_secure_secret_passphrase_here` |
+| `JWT_EXPIRES_IN` | `7d` | Token expiry duration |
+| `CLIENT_URL` | *Your Vercel frontend URL after client deployment* | `https://spendly.vercel.app` |
+| `SMTP_HOST` | `smtp.gmail.com` | SMTP host address |
+| `SMTP_PORT` | `587` | SMTP port number |
+| `SMTP_USER` | *Your email* | `admin@bluetrove.com` |
+| `SMTP_PASS` | *Your email app password* | `xxxx xxxx xxxx xxxx` |
+| `SMTP_FROM` | *Your email* | `Spendly <admin@bluetrove.com>` |
+
+---
+
+## Production Security Regulations
+
+> [!CAUTION]
+> **Safety Regulations**:
+> 1. **MongoDB Connection**: Never connect the production instance to a local `localhost` database. You must utilize MongoDB Atlas.
+> 2. **Environment Variables**: Never commit `.env` files into source control repositories. Always add credentials inside the Render project dashboard.
+> 3. **OTP Security**: In production, the API response must never return the generated OTP code. The OTP must only be sent via email SMTP to ensure accounts are verified securely.
+
+---
+
+## Deployment Health Verification
+
+After the Render build succeeds and deployment status marks **Live**:
+1. Open a browser or postman client and send a GET request to:
+   `https://spendly-backend.onrender.com/api/health` (replace `spendly-backend` with your service's subdomain).
+2. Confirm the response returns status `200` with the following structure:
+   ```json
+   {
+     "status": "ok",
+     "app": "Spendly",
+     "database": "connected",
+     "timestamp": "..."
+   }
+   ```
+3. If database status returns `"disconnected"`, check the cluster credentials and IP whitelisting settings inside the Atlas panel.
 
 ---
 
