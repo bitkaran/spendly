@@ -170,9 +170,9 @@ const AddExpenseSheet = ({ isOpen, onClose, onSave, expenseToEdit, categories = 
                 className="block w-full pl-10 pr-4 py-3 bg-slate-50 dark:bg-slate-900/40 border border-slate-200 dark:border-darkBorder/60 rounded-2xl text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition appearance-none"
                 required
               >
-                <option value="" disabled>Select Category</option>
+                <option value="" disabled className="bg-white dark:bg-darkCard text-slate-400">Select Category</option>
                 {categories.map((cat) => (
-                  <option key={cat._id} value={cat.name}>
+                  <option key={cat._id} value={cat.name} className="bg-white dark:bg-darkCard text-slate-900 dark:text-white">
                     {cat.name}
                   </option>
                 ))}

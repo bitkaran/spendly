@@ -4,7 +4,7 @@ import { User, Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import api from '../utils/api';
 import toast from 'react-hot-toast';
 
-const Signup = () => {
+const Signup = ({ onLoginSuccess }) => {
   const navigate = useNavigate();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -33,10 +33,14 @@ const Signup = () => {
       setLoading(true);
       const response = await api.post('/auth/signup', { name, email, password });
       
-      toast.success(response.data.message || 'OTP verification code sent to your email.');
+      const { token, user } = response.data;
+      localStorage.setItem('spendly_token', token);
+      localStorage.setItem('spendly_user', JSON.stringify(user));
+
+      toast.success('Account created successfully!');
       
-      // Navigate to verify OTP with email state
-      navigate('/verify-otp', { state: { email } });
+      onLoginSuccess(user);
+      navigate('/');
     } catch (error) {
       console.error('Signup error:', error);
       toast.error(error.response?.data?.message || 'Failed to sign up. Please try again.');

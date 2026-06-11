@@ -47,11 +47,6 @@ Use this step-by-step checklist to configure, deploy, and verify the production 
   - `JWT_SECRET` = *A long secure random secret key passphrase*
   - `JWT_EXPIRES_IN` = `7d`
   - `CLIENT_URL` = *Your Vercel frontend URL (leave blank or use placeholders initially, update after Vercel deployment completes)*
-  - `SMTP_HOST` = `smtp.gmail.com` (or your SMTP provider host)
-  - `SMTP_PORT` = `587`
-  - `SMTP_USER` = *Your email address*
-  - `SMTP_PASS` = *Your email account app password*
-  - `SMTP_FROM` = `Spendly Finance <your_email_address>`
 - [ ] **Verify Live Status**:
   - Trigger build. Once the status shows **Live**, verify backend health by sending a GET request in a browser to:
     `https://your-service-name.onrender.com/api/health`
@@ -82,8 +77,7 @@ Use this step-by-step checklist to configure, deploy, and verify the production 
 
 Perform a manual E2E check on the live Vercel URL:
 
-- [ ] **Registration Flow**: Signup with a new name, email, and password. Confirm the app redirects to the verify screen and emails the code.
-- [ ] **Verification Flow**: Input the 6-digit OTP code received in your inbox. Confirm authentication succeeds and loads the dashboard.
+- [ ] **Registration Flow**: Signup with a new name, email, and password. Confirm the app logs you in automatically and redirects directly to the dashboard.
 - [ ] **Sign In Session**: Sign out and log back in to check credentials and session persistence.
 - [ ] **Add Transaction**: Add a test expense (e.g., ₹150 for Lunch, UPI). Confirm dashboard totals and progress meters update.
 - [ ] **Statement Search & Filters**: Search statements by remark and toggle filtering bounds. Confirm data isolates correctly.
@@ -101,4 +95,3 @@ Perform a manual E2E check on the live Vercel URL:
 > 1. **No local fallbacks**: Never attempt to run local database instances (`localhost`) in hosted production environments.
 > 2. **Environment Protection**: Never check in `.env` credentials files to GitHub. Only share `.env.example` templates.
 > 3. **CORS Restrictions**: After your Vercel frontend URL is active, update the `CLIENT_URL` environment variable inside your Render Web Service dashboard to restrict unauthorized domains.
-> 4. **SMTP Requirements**: Make sure you use a valid Gmail/custom SMTP configuration inside Render's variables so email OTPs deliver successfully. (Development mode console OTP logging is blocked in production mode for security).

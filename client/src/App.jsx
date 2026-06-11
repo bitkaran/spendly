@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
+import { Calculator as CalcIcon } from 'lucide-react';
 import api from './utils/api';
 import toast from 'react-hot-toast';
 
@@ -12,9 +13,6 @@ import AddExpenseSheet from './components/AddExpenseSheet';
 // Import Pages
 import Login from './pages/Login';
 import Signup from './pages/Signup';
-import VerifyOtp from './pages/VerifyOtp';
-import ForgotPassword from './pages/ForgotPassword';
-import ResetPassword from './pages/ResetPassword';
 import Dashboard from './pages/Dashboard';
 import Statement from './pages/Statement';
 import Analytics from './pages/Analytics';
@@ -23,6 +21,7 @@ import Profile from './pages/Profile';
 
 function AppContent() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [darkMode, setDarkMode] = useState(false);
@@ -212,37 +211,7 @@ function AppContent() {
               path="/signup"
               element={
                 !isLoggedIn ? (
-                  <Signup />
-                ) : (
-                  <Navigate to="/" replace />
-                )
-              }
-            />
-            <Route
-              path="/verify-otp"
-              element={
-                !isLoggedIn ? (
-                  <VerifyOtp onLoginSuccess={handleLoginSuccess} />
-                ) : (
-                  <Navigate to="/" replace />
-                )
-              }
-            />
-            <Route
-              path="/forgot-password"
-              element={
-                !isLoggedIn ? (
-                  <ForgotPassword />
-                ) : (
-                  <Navigate to="/" replace />
-                )
-              }
-            />
-            <Route
-              path="/reset-password"
-              element={
-                !isLoggedIn ? (
-                  <ResetPassword />
+                  <Signup onLoginSuccess={handleLoginSuccess} />
                 ) : (
                   <Navigate to="/" replace />
                 )

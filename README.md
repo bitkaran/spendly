@@ -24,12 +24,10 @@ It is designed for rapid logging of daily expenses (meals, auto/metro rides, cus
 
 ## Core Features
 
-1. **User Authentication & Verification**:
-   - Secure account registration with email OTP verification before activation.
+1. **User Authentication**:
+   - Secure account registration with direct login.
    - JWT-based login sessions with visual password toggles.
-   - Forgotten password recovery through OTP verification.
    - Strict session routes protection (each user can *only* access their own transactions).
-   - In production, OTP codes are never returned in API payloads.
 
 2. **App-like Dashboard**:
    - Quick counters showing Today's total spending and Month's total spending.
@@ -85,11 +83,6 @@ Create a `.env` file inside the `server/` directory and configure the variables:
 | `JWT_EXPIRES_IN`| Token expiry duration | `30d` |
 | `MONGODB_URI` | Database connection URL (Required in production) | `mongodb+srv://...` |
 | `CLIENT_URL` | Frontend URL for CORS whitelisting | `https://spendly.vercel.app` |
-| `SMTP_HOST` | Email SMTP host address | `smtp.gmail.com` |
-| `SMTP_PORT` | Email SMTP port number | `587` |
-| `SMTP_USER` | Email account for OTP delivery | `your_address@gmail.com` |
-| `SMTP_PASS` | Gmail app password | `xxxx xxxx xxxx xxxx` |
-| `SMTP_FROM` | Sender Name <email> template | `"Spendly Finance" <your_address@gmail.com>` |
 
 ### Frontend Client (`client/`)
 Create a `.env` file inside the `client/` directory (optional):
@@ -161,14 +154,11 @@ To set up your cloud database:
 
 ## Backend API Endpoints
 
-All endpoints (except signup, verification, login, forgot password, health check) require an `Authorization: Bearer <JWT_Token>` request header.
+All endpoints (except signup, login, health check) require an `Authorization: Bearer <JWT_Token>` request header.
 
 * `GET /api/health` - Public endpoint checking database connection state.
-* `POST /api/auth/signup` - Register user.
-* `POST /api/auth/verify-otp` - Verify email OTP code.
+* `POST /api/auth/signup` - Register user and directly login.
 * `POST /api/auth/login` - Validate credentials.
-* `POST /api/auth/forgot-password` - Requests reset password OTP code.
-* `POST /api/auth/reset-password` - Checks recovery OTP and writes new password.
 * `GET /api/auth/me` - Validates session.
 * `GET /api/expenses` - Get user-scoped expenses. Params: `from`, `to`, `category`, `paymentMode`, `minAmount`, `maxAmount`, `search`.
 * `POST /api/expenses` - Log an expense.
@@ -210,17 +200,12 @@ Click **Advanced** or navigate to the service's **Environment** tab and add the 
 
 | Key | Value | Example |
 | :--- | :--- | :--- |
-| `NODE_ENV` | `production` | Enables secure OTP payload masking |
+| `NODE_ENV` | `production` | Node environment |
 | `PORT` | `10000` | Render port routing |
 | `MONGODB_URI` | *Your MongoDB Atlas connection string* | `mongodb+srv://...` |
 | `JWT_SECRET` | *A long random secure string* | `your_long_secure_secret_passphrase_here` |
 | `JWT_EXPIRES_IN` | `7d` | Token expiry duration |
 | `CLIENT_URL` | *Your Vercel frontend URL after client deployment* | `https://spendly.vercel.app` |
-| `SMTP_HOST` | `smtp.gmail.com` | SMTP host address |
-| `SMTP_PORT` | `587` | SMTP port number |
-| `SMTP_USER` | *Your email* | `admin@bluetrove.com` |
-| `SMTP_PASS` | *Your email app password* | `xxxx xxxx xxxx xxxx` |
-| `SMTP_FROM` | *Your email* | `Spendly <admin@bluetrove.com>` |
 
 ---
 
@@ -230,7 +215,6 @@ Click **Advanced** or navigate to the service's **Environment** tab and add the 
 > **Safety Regulations**:
 > 1. **MongoDB Connection**: Never connect the production instance to a local `localhost` database. You must utilize MongoDB Atlas.
 > 2. **Environment Variables**: Never commit `.env` files into source control repositories. Always add credentials inside the Render project dashboard.
-> 3. **OTP Security**: In production, the API response must never return the generated OTP code. The OTP must only be sent via email SMTP to ensure accounts are verified securely.
 
 ---
 

@@ -37,14 +37,7 @@ const Login = ({ onLoginSuccess }) => {
     } catch (error) {
       console.error('Login error:', error);
       const errResponse = error.response;
-      
-      if (errResponse && errResponse.status === 403 && errResponse.data.isVerified === false) {
-        // Redirect to OTP verification
-        toast.error(errResponse.data.message || 'Please verify your email OTP');
-        navigate('/verify-otp', { state: { email: email } });
-      } else {
-        toast.error(errResponse?.data?.message || 'Invalid email or password');
-      }
+      toast.error(errResponse?.data?.message || 'Invalid email or password');
     } finally {
       setLoading(false);
     }
@@ -85,17 +78,9 @@ const Login = ({ onLoginSuccess }) => {
 
           {/* Password Input */}
           <div>
-            <div className="flex justify-between items-center mb-2">
-              <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                Password
-              </label>
-              <Link
-                to="/forgot-password"
-                className="text-xs font-semibold text-primary-600 dark:text-primary-400 hover:underline"
-              >
-                Forgot Password?
-              </Link>
-            </div>
+            <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">
+              Password
+            </label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 dark:text-slate-500">
                 <Lock className="h-5 w-5" />

@@ -137,7 +137,7 @@ const Analytics = ({ triggerRerender }) => {
   const CustomTooltip = ({ active, payload }) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-slate-900/90 dark:bg-slate-850/95 backdrop-blur-sm border border-slate-700/30 p-2.5 rounded-xl shadow-lg text-xs">
+        <div className="bg-slate-900/90 dark:bg-slate-800/95 backdrop-blur-sm border border-slate-700/30 p-2.5 rounded-xl shadow-lg text-xs">
           <p className="font-semibold text-slate-300">{payload[0].name || payload[0].payload.day || payload[0].payload.month}</p>
           <p className="font-bold text-white mt-0.5">₹{payload[0].value.toFixed(2)}</p>
         </div>

@@ -119,9 +119,9 @@ const Calculator = ({ categories = [] }) => {
               className="block w-full px-3 py-2.5 text-xs bg-slate-50 dark:bg-slate-900/40 border border-slate-200 dark:border-darkBorder/50 rounded-xl text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-primary-500"
               required
             >
-              <option value="All">All Categories</option>
+              <option value="All" className="bg-white dark:bg-darkCard text-slate-900 dark:text-white">All Categories</option>
               {categories.map((cat) => (
-                <option key={cat._id} value={cat.name}>
+                <option key={cat._id} value={cat.name} className="bg-white dark:bg-darkCard text-slate-900 dark:text-white">
                   {cat.name}
                 </option>
               ))}
