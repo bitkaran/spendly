@@ -25,7 +25,11 @@ app.use(async (req, res, next) => {
 });
 
 // Middleware - Setup restricted CORS origins for local and production deployment
-const allowedOrigins = ['http://localhost:5173'];
+const allowedOrigins = [
+  'http://localhost:5173',
+  'http://localhost:3000',
+  'http://localhost:5000'
+];
 if (process.env.CLIENT_URL) {
   allowedOrigins.push(process.env.CLIENT_URL);
 }
@@ -33,10 +37,15 @@ if (process.env.CLIENT_URL) {
 app.use(cors({
   origin: function (origin, callback) {
     if (!origin) return callback(null, true); // Allow non-browser requests
-    if (allowedOrigins.includes(origin) || process.env.NODE_ENV === 'development') {
+    if (
+      allowedOrigins.includes(origin) ||
+      process.env.NODE_ENV === 'development' ||
+      origin.endsWith('.vercel.app') ||
+      origin.includes('localhost:')
+    ) {
       callback(null, true);
     } else {
-      callback(new Error('Not allowed by CORS'));
+      callback(new Error(`Not allowed by CORS: Origin ${origin} is not in allowed list`));
     }
   },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
@@ -79,8 +88,8 @@ app.use((req, res, next) => {
 app.use((err, req, res, next) => {
   console.error('Unhandled Error:', err.stack);
   res.status(500).json({
-    message: 'Internal server error occurred',
-    error: err.message,
+    message: err.message || 'Internal server error occurred',
+    error: process.env.NODE_ENV === 'development' ? err.stack : err.message,
   });
 });
 

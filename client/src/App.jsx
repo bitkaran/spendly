@@ -124,7 +124,7 @@ function AppContent() {
       <div className="w-full max-w-md min-h-screen sm:h-[90vh] sm:max-h-[800px] bg-slate-50 dark:bg-darkBg sm:rounded-[40px] sm:shadow-2xl flex flex-col justify-between overflow-hidden border border-slate-200/50 dark:border-darkBorder/40 relative sm:ring-8 sm:ring-slate-900/5">
         
         {/* Topbar Layout */}
-        <Topbar darkMode={darkMode} toggleDarkMode={toggleDarkMode} user={user} />
+        {isLoggedIn && <Topbar darkMode={darkMode} toggleDarkMode={toggleDarkMode} user={user} />}
 
         {/* View Layout pages container */}
         <main className="flex-1 overflow-y-auto no-scrollbar pb-6">
@@ -201,7 +201,7 @@ function AppContent() {
               path="/login"
               element={
                 !isLoggedIn ? (
-                  <Login onLoginSuccess={handleLoginSuccess} />
+                  <Login onLoginSuccess={handleLoginSuccess} darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
                 ) : (
                   <Navigate to="/" replace />
                 )
@@ -211,7 +211,7 @@ function AppContent() {
               path="/signup"
               element={
                 !isLoggedIn ? (
-                  <Signup onLoginSuccess={handleLoginSuccess} />
+                  <Signup onLoginSuccess={handleLoginSuccess} darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
                 ) : (
                   <Navigate to="/" replace />
                 )

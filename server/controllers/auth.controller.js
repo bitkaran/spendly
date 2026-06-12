@@ -83,7 +83,7 @@ export const signup = async (req, res) => {
     });
   } catch (error) {
     console.error('Signup error:', error.message);
-    return res.status(500).json({ message: 'Internal server error' });
+    return res.status(500).json({ message: `Signup failed: ${error.message}` });
   }
 };
 
@@ -123,7 +123,7 @@ export const login = async (req, res) => {
     });
   } catch (error) {
     console.error('Login error:', error.message);
-    return res.status(500).json({ message: 'Internal server error' });
+    return res.status(500).json({ message: `Login failed: ${error.message}` });
   }
 };
 
@@ -141,6 +141,6 @@ export const getMe = async (req, res) => {
     });
   } catch (error) {
     console.error('Get me error:', error.message);
-    return res.status(500).json({ message: 'Internal server error' });
+    return res.status(500).json({ message: `Session verification failed: ${error.message}` });
   }
 };

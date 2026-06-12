@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { User, LogOut, Download, Moon, Sun, Plus, Trash2, Tag, ShieldCheck } from 'lucide-react';
+import { User, LogOut, Download, Moon, Sun, Plus, Trash2, Tag, ShieldCheck, ChevronRight } from 'lucide-react';
 import api from '../utils/api';
 import toast from 'react-hot-toast';
 import ConfirmModal from '../components/ConfirmModal';
@@ -106,37 +106,37 @@ const Profile = ({ onLogout, darkMode, toggleDarkMode, categories = [], onCatego
   };
 
   return (
-    <div className="p-5 space-y-6">
+    <div className="p-5 space-y-6 bg-slate-50/50 dark:bg-darkBg transition-colors duration-300 min-h-full">
       {/* Title */}
       <div>
         <h2 className="text-xl font-extrabold text-slate-900 dark:text-white font-sans tracking-tight">
           Profile Settings
         </h2>
-        <p className="text-xs text-slate-500 dark:text-slate-400 font-bold">
-          Manage your account & options
+        <p className="text-[10px] text-slate-455 dark:text-slate-400 font-extrabold uppercase tracking-wider">
+          Manage Account & Options
         </p>
       </div>
 
       {/* Profile summary card */}
       {user && (
-        <div className="bg-gradient-to-tr from-primary-600 to-indigo-500 text-white p-5 rounded-3xl shadow-lg flex items-center gap-4 relative overflow-hidden">
-          <div className="h-14 w-14 rounded-2xl bg-white/15 backdrop-blur-md border border-white/20 flex items-center justify-center text-white text-2xl font-black font-sans">
+        <div className="bg-white dark:bg-darkCard p-4 rounded-3xl border border-slate-100 dark:border-darkBorder/40 shadow-sm flex items-center gap-4 relative overflow-hidden">
+          <div className="h-14 w-14 rounded-2xl bg-gradient-to-tr from-primary-600 to-indigo-500 text-white font-black text-xl flex items-center justify-center shadow-md">
             {user.name.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase()}
           </div>
           <div className="space-y-0.5">
-            <h3 className="text-lg font-bold flex items-center gap-1.5 leading-none">
+            <h3 className="text-sm font-black text-slate-900 dark:text-white flex items-center gap-1.5 leading-none">
               {user.name}
-              <ShieldCheck className="h-4.5 w-4.5 text-indigo-200 fill-indigo-200/10" />
+              <ShieldCheck className="h-4.5 w-4.5 text-primary-500 fill-primary-500/10" />
             </h3>
-            <p className="text-xs text-indigo-100 font-medium">{user.email}</p>
+            <p className="text-[10px] text-slate-500 dark:text-slate-400 font-semibold mt-1">{user.email}</p>
           </div>
         </div>
       )}
 
       {/* Category Management Drawer */}
-      <div className="bg-white dark:bg-darkCard p-5 border border-slate-200/60 dark:border-darkBorder/40 rounded-3xl shadow-premium dark:shadow-premium-dark space-y-4">
-        <h3 className="text-xs font-bold text-slate-500 dark:text-slate-350 uppercase tracking-wider flex items-center gap-2">
-          <Tag className="h-4 w-4 text-primary-500" />
+      <div className="bg-white dark:bg-darkCard p-5 border border-slate-100 dark:border-darkBorder/30 rounded-3xl shadow-sm space-y-4">
+        <h3 className="text-[10px] font-extrabold text-slate-400 dark:text-slate-400 uppercase tracking-widest flex items-center gap-2">
+          <Tag className="h-3.5 w-3.5 text-primary-500" />
           Manage Categories
         </h3>
 
@@ -144,28 +144,28 @@ const Profile = ({ onLogout, darkMode, toggleDarkMode, categories = [], onCatego
         <form onSubmit={handleAddCategory} className="flex gap-2">
           <input
             type="text"
-            placeholder="New custom category..."
+            placeholder="Create custom category..."
             value={newCategoryName}
             onChange={(e) => setNewCategoryName(e.target.value)}
-            className="flex-1 px-3.5 py-2 text-xs bg-slate-50 dark:bg-slate-900 border border-slate-200/60 dark:border-darkBorder/40 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-primary-500 font-semibold"
+            className="flex-1 px-3.5 py-2.5 text-xs bg-slate-50 dark:bg-slate-900/60 border border-slate-200/80 dark:border-darkBorder/60 rounded-xl text-slate-900 dark:text-white placeholder-slate-405 focus:outline-none focus:ring-1 focus:ring-primary-500 font-semibold"
             required
             disabled={addingCategory}
           />
           <button
             type="submit"
             disabled={addingCategory}
-            className="px-3.5 py-2 bg-primary-600 hover:bg-primary-700 disabled:opacity-50 text-white rounded-xl flex items-center justify-center transition shadow-sm shadow-primary-500/10"
+            className="px-3.5 py-2.5 bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-100 text-white dark:text-slate-900 rounded-xl flex items-center justify-center transition shadow-sm"
           >
             <Plus className="h-4 w-4 stroke-[2.5]" />
           </button>
         </form>
 
         {/* List of categories */}
-        <div className="max-h-52 overflow-y-auto no-scrollbar border border-slate-200/50 dark:border-darkBorder/40 rounded-2xl divide-y divide-slate-100 dark:divide-darkBorder/25">
+        <div className="max-h-52 overflow-y-auto no-scrollbar border border-slate-100 dark:border-darkBorder/25 rounded-2xl divide-y divide-slate-100 dark:divide-darkBorder/25">
           {categories.map((cat) => (
             <div
               key={cat._id}
-              className="px-3 py-2.5 flex items-center justify-between text-xs hover:bg-slate-50/50 dark:hover:bg-slate-900/10"
+              className="px-3.5 py-2.5 flex items-center justify-between text-xs hover:bg-slate-50/50 dark:hover:bg-slate-900/10 font-bold"
             >
               <div className="flex items-center gap-2">
                 <span
@@ -173,11 +173,11 @@ const Profile = ({ onLogout, darkMode, toggleDarkMode, categories = [], onCatego
                     cat.type === 'default' ? 'bg-primary-500' : 'bg-amber-500'
                   }`}
                 />
-                <span className="font-bold text-slate-700 dark:text-slate-200">
+                <span className="text-slate-700 dark:text-slate-200">
                   {cat.name}
                 </span>
                 {cat.type === 'default' && (
-                  <span className="text-[8px] px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 font-extrabold tracking-wider uppercase">
+                  <span className="text-[8px] px-1.5 py-0.5 rounded bg-slate-50 dark:bg-slate-900/80 text-slate-400 dark:text-slate-500 font-extrabold tracking-wider uppercase border border-slate-100 dark:border-darkBorder/15">
                     System
                   </span>
                 )}
@@ -186,10 +186,10 @@ const Profile = ({ onLogout, darkMode, toggleDarkMode, categories = [], onCatego
               {cat.type === 'custom' && (
                 <button
                   onClick={() => handleDeleteCatRequest(cat)}
-                  className="p-1 rounded bg-slate-50 dark:bg-slate-900 text-slate-400 hover:text-red-650 hover:bg-red-50 dark:hover:bg-red-950/20 border border-slate-100 dark:border-transparent transition"
+                  className="p-1 rounded bg-slate-50 dark:bg-slate-900 text-slate-400 hover:text-red-500 border border-slate-100/50 dark:border-transparent transition"
                   title="Delete Category"
                 >
-                  <Trash2 className="h-3.5 w-3.5" />
+                  <Trash2 className="h-3 w-3" />
                 </button>
               )}
             </div>
@@ -197,59 +197,75 @@ const Profile = ({ onLogout, darkMode, toggleDarkMode, categories = [], onCatego
         </div>
       </div>
 
-      {/* Preferences Section */}
-      <div className="bg-white dark:bg-darkCard p-5 border border-slate-200/60 dark:border-darkBorder/40 rounded-3xl shadow-premium dark:shadow-premium-dark divide-y divide-slate-100 dark:divide-darkBorder/30">
+      {/* Preferences Section - Native Settings List Style */}
+      <div className="bg-white dark:bg-darkCard border border-slate-100 dark:border-darkBorder/30 rounded-3xl shadow-sm overflow-hidden divide-y divide-slate-100 dark:divide-darkBorder/25">
+        
         {/* Theme Toggler row */}
-        <div className="py-3 flex items-center justify-between first:pt-0">
-          <div className="flex flex-col">
-            <span className="text-xs font-bold text-slate-700 dark:text-slate-200">Dark Display Theme</span>
-            <span className="text-[10px] font-semibold text-slate-400 dark:text-slate-500 mt-0.5">Toggle interface design mode</span>
+        <div className="p-4.5 flex items-center justify-between hover:bg-slate-50/30 dark:hover:bg-slate-900/5 transition">
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-xl bg-indigo-500/5 text-indigo-500">
+              {darkMode ? <Sun className="h-4.5 w-4.5" /> : <Moon className="h-4.5 w-4.5" />}
+            </div>
+            <div className="flex flex-col">
+              <span className="text-xs font-bold text-slate-750 dark:text-slate-200">Dark Display Theme</span>
+              <span className="text-[9px] font-bold text-slate-400 dark:text-slate-500 mt-0.5">Toggle interface design mode</span>
+            </div>
           </div>
           <button
             onClick={toggleDarkMode}
-            className="p-2 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200/50 dark:border-darkBorder/30 text-slate-600 dark:text-slate-300 transition hover:bg-slate-100 dark:hover:bg-slate-800"
+            className={`w-9 h-5 rounded-full p-0.5 transition-colors duration-200 focus:outline-none ${
+              darkMode ? 'bg-indigo-600' : 'bg-slate-200 dark:bg-slate-800'
+            }`}
           >
-            {darkMode ? <Sun className="h-4 w-4 text-yellow-500" /> : <Moon className="h-4 w-4 text-indigo-400" />}
+            <div
+              className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform duration-200 ${
+                darkMode ? 'translate-x-4' : 'translate-x-0'
+              }`}
+            />
           </button>
         </div>
 
         {/* Data export backup */}
-        <div className="py-3 flex items-center justify-between">
-          <div className="flex flex-col">
-            <span className="text-xs font-bold text-slate-700 dark:text-slate-200">Export All Data</span>
-            <span className="text-[10px] font-semibold text-slate-400 dark:text-slate-500 mt-0.5">Download full JSON data backup</span>
+        <div
+          onClick={handleExportAllData}
+          className="p-4.5 flex items-center justify-between hover:bg-slate-50/50 dark:hover:bg-slate-900/5 transition cursor-pointer"
+        >
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-xl bg-emerald-500/5 text-emerald-500">
+              <Download className="h-4.5 w-4.5" />
+            </div>
+            <div className="flex flex-col">
+              <span className="text-xs font-bold text-slate-750 dark:text-slate-200">Export All Data</span>
+              <span className="text-[9px] font-bold text-slate-400 dark:text-slate-500 mt-0.5">Download full JSON data backup</span>
+            </div>
           </div>
-          <button
-            onClick={handleExportAllData}
-            className="px-3.5 py-1.5 bg-slate-50 dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200/50 dark:border-darkBorder/30 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1 transition"
-          >
-            <Download className="h-3.5 w-3.5" />
-            Backup JSON
-          </button>
+          <ChevronRight className="h-4 w-4 text-slate-400 dark:text-slate-500" />
         </div>
 
         {/* Logout Option */}
-        <div className="py-3 flex items-center justify-between last:pb-0">
-          <div className="flex flex-col">
-            <span className="text-xs font-bold text-slate-700 dark:text-slate-200">Sign Out Session</span>
-            <span className="text-[10px] font-semibold text-slate-400 dark:text-slate-500 mt-0.5">Log out of this device safely</span>
+        <div
+          onClick={onLogout}
+          className="p-4.5 flex items-center justify-between hover:bg-slate-50/50 dark:hover:bg-slate-900/5 transition cursor-pointer"
+        >
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-xl bg-red-500/5 text-red-500">
+              <LogOut className="h-4.5 w-4.5" />
+            </div>
+            <div className="flex flex-col">
+              <span className="text-xs font-bold text-slate-750 dark:text-slate-200">Sign Out Session</span>
+              <span className="text-[9px] font-bold text-slate-400 dark:text-slate-500 mt-0.5">Log out of this device safely</span>
+            </div>
           </div>
-          <button
-            onClick={onLogout}
-            className="px-3.5 py-1.5 bg-red-50 dark:bg-red-950/20 text-red-600 hover:bg-red-100 dark:hover:bg-red-900/30 border border-red-200/20 dark:border-red-900/10 rounded-xl text-xs font-bold flex items-center gap-1 transition"
-          >
-            <LogOut className="h-3.5 w-3.5" />
-            Sign Out
-          </button>
+          <ChevronRight className="h-4 w-4 text-slate-400 dark:text-slate-500" />
         </div>
       </div>
 
       {/* Footer Branding Info */}
       <div className="text-center space-y-1 py-4">
-        <h4 className="text-xs font-extrabold text-slate-400 dark:text-slate-600 font-sans tracking-widest">
+        <h4 className="text-[10px] font-extrabold text-slate-400 dark:text-slate-650 font-sans tracking-widest uppercase">
           SPENDLY
         </h4>
-        <p className="text-[9px] font-bold text-slate-400 dark:text-slate-650 mt-0.5">
+        <p className="text-[8px] font-bold text-slate-400 dark:text-slate-700 mt-0.5">
           Version 1.0.0 &bull; Build Stable
         </p>
       </div>
