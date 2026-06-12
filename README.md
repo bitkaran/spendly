@@ -57,6 +57,28 @@ It is designed for rapid logging of daily expenses (meals, auto/metro rides, cus
 
 ---
 
+## Install Spendly as an App
+
+Spendly supports Progressive Web App (PWA) capabilities, allowing it to be installed on your mobile device or desktop to run in standalone native app mode.
+
+### On iOS (Safari):
+1. Open Safari and navigate to your deployed Spendly URL.
+2. Tap the **Share** button (upward arrow icon) in the toolbar.
+3. Scroll down and select **Add to Home Screen**.
+4. Tap **Add**. Spendly will appear on your home screen with its premium icon and launch in full-screen standalone mode.
+
+### On Android (Chrome / Edge):
+1. Open Chrome and navigate to your Spendly URL.
+2. Tap the **Install App** prompt at the bottom of the screen (or open the top-right menu and select **Install App**).
+3. Confirm the prompt. The app will install with its native splash screen.
+
+### On Desktop (Chrome / Edge):
+1. Open Chrome/Edge and visit the app URL.
+2. Click the **Install** icon (monitor/arrow down symbol) on the right side of the address bar.
+3. Click **Install**.
+
+---
+
 ## Folder Structure
 
 ```
