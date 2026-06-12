@@ -12,10 +12,17 @@ import exportRoutes from './routes/export.routes.js';
 // Load environment variables
 dotenv.config();
 
-// Connect to Database
-connectDB();
-
 const app = express();
+
+// Database connection middleware (lazy/serverless-friendly)
+app.use(async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (error) {
+    next(error);
+  }
+});
 
 // Middleware - Setup restricted CORS origins for local and production deployment
 const allowedOrigins = ['http://localhost:5173'];
