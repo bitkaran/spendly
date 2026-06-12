@@ -77,6 +77,14 @@ Spendly supports Progressive Web App (PWA) capabilities, allowing it to be insta
 2. Click the **Install** icon (monitor/arrow down symbol) on the right side of the address bar.
 3. Click **Install**.
 
+### PWA Troubleshooting & Verification Checklist:
+If the install option is not showing up or is disabled:
+- **Check connection protocol**: Ensure you are using `https://` (unless running locally on `http://localhost`). Service Workers and manifest installations are blocked on insecure connections.
+- **Standalone Mode check**: If you're already running the app inside its standalone frame, the Install prompt is hidden (you've successfully installed it).
+- **Service Worker status**: Open Chrome DevTools > Application > Service Workers and verify `sw.js` is registered, active, and running.
+- **Manifest validation**: Ensure `/manifest.json` is served with valid configurations: `start_url` = `/`, `display` = `standalone`, and scope = `/`.
+- **Browser limits**: Some browsers (such as Firefox on iOS or Brave with strict shields) disable native install prompt triggers. Use iOS Safari or Android Chrome for the native install prompt flow.
+
 ---
 
 ## Folder Structure

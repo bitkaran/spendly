@@ -22,7 +22,7 @@ const Topbar = ({ darkMode, toggleDarkMode, user }) => {
   };
 
   return (
-    <header className="sticky top-0 z-40 w-full bg-white/90 dark:bg-darkBg/95 backdrop-blur-md border-b border-slate-100 dark:border-darkBorder/40 py-3 px-4 flex items-center justify-between transition-colors duration-300">
+    <header className="sticky top-0 z-40 w-full bg-white/90 dark:bg-darkBg/95 backdrop-blur-md border-b border-slate-100 dark:border-darkBorder/40 px-4 flex items-center justify-between transition-colors duration-300 topbar-safe py-3">
       <div className="flex items-center gap-3">
         {showBackButton && (
           <button

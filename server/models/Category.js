@@ -18,6 +18,31 @@ const categorySchema = new mongoose.Schema(
       enum: ['default', 'custom'],
       default: 'custom',
     },
+    icon: {
+      type: String,
+      default: '🏷️',
+    },
+    color: {
+      type: String,
+      default: '#8395a7',
+    },
+    transactionType: {
+      type: String,
+      enum: ['expense', 'income', 'transfer'],
+      default: 'expense',
+    },
+    isDefault: {
+      type: Boolean,
+      default: false,
+    },
+    isArchived: {
+      type: Boolean,
+      default: false,
+    },
+    sortOrder: {
+      type: Number,
+      default: 0,
+    },
   },
   {
     timestamps: true,

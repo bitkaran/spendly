@@ -18,6 +18,7 @@ import Statement from './pages/Statement';
 import Analytics from './pages/Analytics';
 import Calculator from './pages/Calculator';
 import Profile from './pages/Profile';
+import Onboarding from './pages/Onboarding';
 
 function AppContent() {
   const navigate = useNavigate();
@@ -26,6 +27,10 @@ function AppContent() {
   const [loading, setLoading] = useState(true);
   const [darkMode, setDarkMode] = useState(false);
   const [categories, setCategories] = useState([]);
+
+  // PWA states
+  const [deferredPrompt, setDeferredPrompt] = useState(null);
+  const [isInstalled, setIsInstalled] = useState(false);
 
   // Rerendering triggers for sub-pages
   const [triggerRerender, setTriggerRerender] = useState(0);
@@ -57,7 +62,33 @@ function AppContent() {
     };
 
     window.addEventListener('spendly_logout', handleLogoutEvent);
-    return () => window.removeEventListener('spendly_logout', handleLogoutEvent);
+
+    // 4. PWA Installation hooks
+    const checkStandalone = () => {
+      const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+      setIsInstalled(!!isStandalone);
+    };
+    checkStandalone();
+
+    const handleInstallPrompt = (e) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+    };
+
+    const handleAppInstalled = () => {
+      setIsInstalled(true);
+      setDeferredPrompt(null);
+      toast.success('Spendly installed as app successfully!');
+    };
+
+    window.addEventListener('beforeinstallprompt', handleInstallPrompt);
+    window.addEventListener('appinstalled', handleAppInstalled);
+
+    return () => {
+      window.removeEventListener('spendly_logout', handleLogoutEvent);
+      window.removeEventListener('beforeinstallprompt', handleInstallPrompt);
+      window.removeEventListener('appinstalled', handleAppInstalled);
+    };
   }, []);
 
   // Sync dark mode state with document node
@@ -117,14 +148,15 @@ function AppContent() {
   }
 
   const isLoggedIn = !!user;
+  const isOnboarded = isLoggedIn && user.onboardingCompleted;
 
   return (
     <div className="min-h-screen bg-slate-100 dark:bg-slate-950 flex items-center justify-center py-0 sm:py-6">
       {/* Mobile Chassis Device frame on Desktop */}
-      <div className="w-full max-w-md min-h-screen sm:h-[90vh] sm:max-h-[800px] bg-slate-50 dark:bg-darkBg sm:rounded-[40px] sm:shadow-2xl flex flex-col justify-between overflow-hidden border border-slate-200/50 dark:border-darkBorder/40 relative sm:ring-8 sm:ring-slate-900/5">
+      <div className="w-full max-w-md h-[100dvh] sm:h-[90vh] sm:max-h-[800px] bg-slate-50 dark:bg-darkBg sm:rounded-[40px] sm:shadow-2xl flex flex-col justify-between overflow-hidden border border-slate-200/50 dark:border-darkBorder/40 relative sm:ring-8 sm:ring-slate-900/5">
         
         {/* Topbar Layout */}
-        {isLoggedIn && <Topbar darkMode={darkMode} toggleDarkMode={toggleDarkMode} user={user} />}
+        {isOnboarded && <Topbar darkMode={darkMode} toggleDarkMode={toggleDarkMode} user={user} />}
 
         {/* View Layout pages container */}
         <main className="flex-1 overflow-y-auto no-scrollbar pb-6">
@@ -134,11 +166,29 @@ function AppContent() {
               path="/"
               element={
                 isLoggedIn ? (
-                  <Dashboard
-                    onOpenAddSheet={handleOpenAddSheet}
-                    triggerRerender={triggerRerender}
-                    categories={categories}
-                  />
+                  !isOnboarded ? (
+                    <Navigate to="/onboarding" replace />
+                  ) : (
+                    <Dashboard
+                      onOpenAddSheet={handleOpenAddSheet}
+                      triggerRerender={triggerRerender}
+                      categories={categories}
+                    />
+                  )
+                ) : (
+                  <Navigate to="/login" replace />
+                )
+              }
+            />
+            <Route
+              path="/onboarding"
+              element={
+                isLoggedIn ? (
+                  !isOnboarded ? (
+                    <Onboarding onOnboardingSuccess={handleLoginSuccess} />
+                  ) : (
+                    <Navigate to="/" replace />
+                  )
                 ) : (
                   <Navigate to="/login" replace />
                 )
@@ -148,11 +198,15 @@ function AppContent() {
               path="/statement"
               element={
                 isLoggedIn ? (
-                  <Statement
-                    onOpenAddSheet={handleOpenAddSheet}
-                    triggerRerender={triggerRerender}
-                    categories={categories}
-                  />
+                  !isOnboarded ? (
+                    <Navigate to="/onboarding" replace />
+                  ) : (
+                    <Statement
+                      onOpenAddSheet={handleOpenAddSheet}
+                      triggerRerender={triggerRerender}
+                      categories={categories}
+                    />
+                  )
                 ) : (
                   <Navigate to="/login" replace />
                 )
@@ -162,7 +216,11 @@ function AppContent() {
               path="/analytics"
               element={
                 isLoggedIn ? (
-                  <Analytics triggerRerender={triggerRerender} darkMode={darkMode} />
+                  !isOnboarded ? (
+                    <Navigate to="/onboarding" replace />
+                  ) : (
+                    <Analytics triggerRerender={triggerRerender} darkMode={darkMode} />
+                  )
                 ) : (
                   <Navigate to="/login" replace />
                 )
@@ -172,7 +230,11 @@ function AppContent() {
               path="/calculator"
               element={
                 isLoggedIn ? (
-                  <Calculator categories={categories} />
+                  !isOnboarded ? (
+                    <Navigate to="/onboarding" replace />
+                  ) : (
+                    <Calculator categories={categories} />
+                  )
                 ) : (
                   <Navigate to="/login" replace />
                 )
@@ -182,14 +244,21 @@ function AppContent() {
               path="/profile"
               element={
                 isLoggedIn ? (
-                  <Profile
-                    user={user}
-                    onLogout={handleLogout}
-                    darkMode={darkMode}
-                    toggleDarkMode={toggleDarkMode}
-                    categories={categories}
-                    onCategoryChange={fetchCategories}
-                  />
+                  !isOnboarded ? (
+                    <Navigate to="/onboarding" replace />
+                  ) : (
+                    <Profile
+                      user={user}
+                      onLogout={handleLogout}
+                      darkMode={darkMode}
+                      toggleDarkMode={toggleDarkMode}
+                      categories={categories}
+                      onCategoryChange={fetchCategories}
+                      deferredPrompt={deferredPrompt}
+                      isInstalled={isInstalled}
+                      setDeferredPrompt={setDeferredPrompt}
+                    />
+                  )
                 ) : (
                   <Navigate to="/login" replace />
                 )
@@ -219,15 +288,15 @@ function AppContent() {
             />
 
             {/* Catch-all Fallback */}
-            <Route path="*" element={<Navigate to={isLoggedIn ? '/' : '/login'} replace />} />
+            <Route path="*" element={<Navigate to={isLoggedIn ? (isOnboarded ? '/' : '/onboarding') : '/login'} replace />} />
           </Routes>
         </main>
 
         {/* Bottom Navigation (Only for logged in users) */}
-        {isLoggedIn && <Navbar onAddClick={() => handleOpenAddSheet(null)} />}
+        {isOnboarded && <Navbar onAddClick={() => handleOpenAddSheet(null)} />}
 
         {/* Floating Calculator Shortcut (on Dashboard & Analytics) */}
-        {isLoggedIn && ['/', '/analytics'].includes(location.pathname) && (
+        {isOnboarded && ['/', '/analytics'].includes(location.pathname) && (
           <button
             onClick={() => navigate('/calculator')}
             className="absolute bottom-20 right-4 p-3 bg-white dark:bg-darkCard hover:bg-slate-50 text-indigo-600 dark:text-indigo-400 border border-slate-100 dark:border-darkBorder/40 rounded-full shadow-lg hover:shadow-indigo-500/10 active:scale-95 transition"

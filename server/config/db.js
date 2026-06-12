@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { seedCategories } from '../utils/seedCategories.js';
 
 let cachedConnection = null;
 
@@ -25,6 +26,10 @@ const connectDB = async () => {
     
     const conn = await cachedConnection;
     console.log(`MongoDB Connected: ${conn.connection.host}`);
+    
+    // Seed default categories dynamically
+    await seedCategories();
+    
     return conn;
   } catch (error) {
     const errorMsg = `Database connection failed: ${error.message}`;

@@ -50,25 +50,6 @@ export const signup = async (req, res) => {
       otpExpires: null,
     });
 
-    // Seed default categories for this user immediately on signup
-    const defaultCategoriesList = [
-      'Coming Auto',
-      'Coming Metro',
-      'Return Auto',
-      'Return Metro',
-      'Lunch',
-      'Dinner',
-      'Snacks / Tea',
-      'Other'
-    ];
-
-    const categoryDocs = defaultCategoriesList.map((cat) => ({
-      userId: newUser._id,
-      name: cat,
-      type: 'default',
-    }));
-    await Category.insertMany(categoryDocs);
-
     const token = generateToken(newUser._id);
 
     return res.status(201).json({
@@ -79,6 +60,11 @@ export const signup = async (req, res) => {
         name: newUser.name,
         email: newUser.email,
         isVerified: true,
+        currencyCode: newUser.currencyCode,
+        currencySymbol: newUser.currencySymbol,
+        monthlyBudget: newUser.monthlyBudget,
+        onboardingCompleted: newUser.onboardingCompleted,
+        themePreference: newUser.themePreference,
       },
     });
   } catch (error) {
@@ -119,6 +105,13 @@ export const login = async (req, res) => {
         name: user.name,
         email: user.email,
         isVerified: true,
+        currencyCode: user.currencyCode,
+        currencySymbol: user.currencySymbol,
+        monthlyBudget: user.monthlyBudget,
+        onboardingCompleted: user.onboardingCompleted,
+        themePreference: user.themePreference,
+        locale: user.locale,
+        timezone: user.timezone,
       },
     });
   } catch (error) {
@@ -137,6 +130,13 @@ export const getMe = async (req, res) => {
         name: req.user.name,
         email: req.user.email,
         isVerified: true,
+        currencyCode: req.user.currencyCode,
+        currencySymbol: req.user.currencySymbol,
+        monthlyBudget: req.user.monthlyBudget,
+        onboardingCompleted: req.user.onboardingCompleted,
+        themePreference: req.user.themePreference,
+        locale: req.user.locale,
+        timezone: req.user.timezone,
       },
     });
   } catch (error) {

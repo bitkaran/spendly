@@ -1,15 +1,23 @@
 import ExcelJS from 'exceljs';
-import Expense from '../models/Expense.js';
+import Transaction from '../models/Transaction.js';
+import User from '../models/User.js';
 
-// @desc    Export expenses to formatted Excel (.xlsx) file
+// @desc    Export transactions to formatted Excel (.xlsx) file
 // @route   GET /api/export/excel
 export const exportToExcel = async (req, res) => {
   try {
     const userId = req.user._id;
-    const { from, to, category, paymentMode, minAmount, maxAmount, search } = req.query;
+    const { from, to, category, paymentMode, minAmount, maxAmount, search, type } = req.query;
 
-    // Build filters exactly like GET /api/expenses
+    const user = await User.findById(userId);
+    const currencySym = user ? user.currencySymbol : '₹';
+
+    // Build filters exactly like GET /api/transactions
     const query = { userId };
+
+    if (type && type !== 'All') {
+      query.type = type;
+    }
 
     if (from || to) {
       query.date = {};
@@ -40,11 +48,13 @@ export const exportToExcel = async (req, res) => {
       query.$or = [
         { remark: { $regex: escapedSearch, $options: 'i' } },
         { category: { $regex: escapedSearch, $options: 'i' } },
+        { merchant: { $regex: escapedSearch, $options: 'i' } },
+        { tags: { $regex: escapedSearch, $options: 'i' } }
       ];
     }
 
     // Fetch matching data
-    const expenses = await Expense.find(query).sort({ date: -1, createdAt: -1 });
+    const transactions = await Transaction.find(query).sort({ date: -1, createdAt: -1 });
 
     // Create workbook and worksheet
     const workbook = new ExcelJS.Workbook();
@@ -52,11 +62,14 @@ export const exportToExcel = async (req, res) => {
 
     // Header Column Definitions
     worksheet.columns = [
-      { header: 'Date', key: 'date', width: 16 },
-      { header: 'Category', key: 'category', width: 22 },
-      { header: 'Amount (₹)', key: 'amount', width: 16 },
-      { header: 'Remark', key: 'remark', width: 35 },
-      { header: 'Payment Mode', key: 'paymentMode', width: 18 },
+      { header: 'Date', key: 'date', width: 14 },
+      { header: 'Type', key: 'type', width: 12 },
+      { header: 'Category', key: 'category', width: 20 },
+      { header: `Amount (${currencySym})`, key: 'amount', width: 14 },
+      { header: 'Remark / Note', key: 'remark', width: 30 },
+      { header: 'Payment Mode', key: 'paymentMode', width: 16 },
+      { header: 'Merchant / Payee', key: 'merchant', width: 22 },
+      { header: 'Tags', key: 'tags', width: 18 }
     ];
 
     // Style Header Row (Indigo color fill, white bold text)
@@ -71,9 +84,8 @@ export const exportToExcel = async (req, res) => {
     headerRow.alignment = { vertical: 'middle', horizontal: 'left' };
 
     // Fill data rows
-    expenses.forEach((exp) => {
-      // Formatted local date
-      const d = new Date(exp.date);
+    transactions.forEach((tx) => {
+      const d = new Date(tx.date);
       const formattedDate = d.toLocaleDateString('en-IN', {
         year: 'numeric',
         month: '2-digit',
@@ -82,10 +94,13 @@ export const exportToExcel = async (req, res) => {
 
       worksheet.addRow({
         date: formattedDate,
-        category: exp.category,
-        amount: exp.amount,
-        remark: exp.remark || '',
-        paymentMode: exp.paymentMode,
+        type: tx.type ? (tx.type.charAt(0).toUpperCase() + tx.type.slice(1)) : 'Expense',
+        category: tx.category,
+        amount: tx.amount,
+        remark: tx.remark || '',
+        paymentMode: tx.paymentMode,
+        merchant: tx.merchant || '',
+        tags: Array.isArray(tx.tags) ? tx.tags.join(', ') : ''
       });
     });
 
@@ -106,23 +121,31 @@ export const exportToExcel = async (req, res) => {
         };
       });
 
-      // Format Amount currency cell
-      const amountCell = row.getCell(3); // Column C
-      amountCell.numFmt = '₹#,##0.00';
+      // Style cell for Type (Expense: Light Red, Income: Light Green text)
+      const typeCell = row.getCell(2);
+      if (typeCell.value === 'Income') {
+        typeCell.font = { name: 'Segoe UI', size: 10, bold: true, color: { argb: '10AC84' } };
+      } else {
+        typeCell.font = { name: 'Segoe UI', size: 10, bold: true, color: { argb: 'EE5253' } };
+      }
+
+      // Format Amount cell
+      const amountCell = row.getCell(4); // Column D
+      amountCell.numFmt = `"${currencySym}"#,##0.00`;
       amountCell.alignment = { vertical: 'middle', horizontal: 'right' };
     });
 
     // Set Autofilter
     worksheet.autoFilter = {
       from: 'A1',
-      to: `E${expenses.length + 1}`,
+      to: `H${transactions.length + 1}`,
     };
 
-    // Filename: expense-statement-YYYY-MM.xlsx
+    // Filename: statement-YYYY-MM.xlsx
     const now = new Date();
     const year = now.getFullYear();
     const month = String(now.getMonth() + 1).padStart(2, '0');
-    const filename = `expense-statement-${year}-${month}.xlsx`;
+    const filename = `spendly-statement-${year}-${month}.xlsx`;
 
     // Response configuration
     res.setHeader(

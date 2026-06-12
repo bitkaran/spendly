@@ -9,8 +9,18 @@ const Calculator = ({ categories = [] }) => {
   const [to, setTo] = useState('');
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState(null);
+  const [currencySymbol, setCurrencySymbol] = useState('₹');
 
   useEffect(() => {
+    const savedUser = localStorage.getItem('spendly_user');
+    if (savedUser) {
+      try {
+        const u = JSON.parse(savedUser);
+        if (u.currencySymbol) setCurrencySymbol(u.currencySymbol);
+      } catch (err) {
+        console.error(err);
+      }
+    }
     // Default to current month range
     const today = new Date();
     const year = today.getFullYear();
@@ -156,17 +166,17 @@ const Calculator = ({ categories = [] }) => {
               {/* Primary Total Card */}
               <div className="bg-gradient-to-tr from-primary-600 to-indigo-500 text-white p-5 rounded-3xl shadow-lg relative overflow-hidden">
                 <div className="absolute right-0 bottom-0 translate-y-3 translate-x-3 text-white/5 font-bold text-7xl select-none font-sans">
-                  ₹
+                  {currencySymbol}
                 </div>
                 <span className="text-[10px] uppercase font-bold text-indigo-100 tracking-wider">
                   Total Spending
                 </span>
                 <h3 className="text-3xl font-extrabold mt-1 font-sans">
-                  ₹{results.totalExpense.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                  {currencySymbol}{results.totalExpense.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                 </h3>
                 <div className="flex justify-between items-center mt-4 pt-3 border-t border-white/10 text-xs text-indigo-50">
                   <span>Entries Count: <strong>{results.totalEntries}</strong></span>
-                  <span>Daily Avg: <strong>₹{results.averagePerDay.toLocaleString('en-IN')}</strong></span>
+                  <span>Daily Avg: <strong>{currencySymbol}{results.averagePerDay.toLocaleString('en-IN')}</strong></span>
                 </div>
               </div>
 
@@ -180,7 +190,7 @@ const Calculator = ({ categories = [] }) => {
                       Highest
                     </div>
                     <h4 className="text-base font-extrabold text-slate-900 dark:text-white font-sans">
-                      ₹{results.highestExpense.amount.toLocaleString('en-IN')}
+                      {currencySymbol}{results.highestExpense.amount.toLocaleString('en-IN')}
                     </h4>
                     <p className="text-[10px] text-slate-800 dark:text-slate-200 font-semibold truncate">
                       {results.highestExpense.category}
@@ -202,7 +212,7 @@ const Calculator = ({ categories = [] }) => {
                       Lowest
                     </div>
                     <h4 className="text-base font-extrabold text-slate-900 dark:text-white font-sans">
-                      ₹{results.lowestExpense.amount.toLocaleString('en-IN')}
+                      {currencySymbol}{results.lowestExpense.amount.toLocaleString('en-IN')}
                     </h4>
                     <p className="text-[10px] text-slate-800 dark:text-slate-200 font-semibold truncate">
                       {results.lowestExpense.category}

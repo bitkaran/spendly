@@ -64,3 +64,16 @@ After the build succeeds:
 ### CommonJS / ES Modules syntax errors
 * **Symptom:** Build fails with `Cannot use import statement outside a module` on `api/index.js`.
 * **Fix:** The root `package.json` must contain `"type": "module"` so Vercel compiles the entrypoint using ES Modules matching the server directory.
+
+---
+
+## 5. PWA Validation & Service Worker Routing
+
+To verify that the Progressive Web App (PWA) features are working correctly in your production deployment on Vercel:
+
+1. **Manifest File**: Visit `/manifest.json` on your live domain and ensure it responds with the valid PWA manifest JSON.
+2. **Service Worker**: Visit `/sw.js` to verify that the Service Worker script is active and served with correct cache headers.
+3. **Offline Fallback**: Visit `/offline.html` to view the custom styled offline fallback page.
+4. **HTTPS Enforcement**: PWAs require HTTPS. Vercel automatically supplies SSL certificates, enabling PWA installs. Ensure you access the page via `https://` (not `http://`).
+5. **Icon Assets**: Ensure that the application icons are present under `/icons/icon-192.png` and `/icons/icon-512.png`.
+

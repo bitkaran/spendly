@@ -46,11 +46,20 @@ body {
   padding: 0;
   background-color: #f8fafc;
   color: #0f172a;
+  height: 100%;
+  overflow: hidden;
 }
 
 .dark body {
   background-color: #0b0f19;
   color: #f8fafc;
+}
+
+@media (min-width: 640px) {
+  body {
+    overflow-y: auto;
+    height: auto;
+  }
 }
 
 /* Glassmorphism utility */
@@ -101,3 +110,26 @@ body {
 .animate-fade-in {
   animation: fade-in 0.2s ease-out forwards;
 }
+
+/* Safe areas support classes */
+.topbar-safe {
+  padding-top: calc(0.75rem + env(safe-area-inset-top, 0px)) !important;
+}
+
+.navbar-safe {
+  padding-bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px)) !important;
+}
+
+/* Custom standard heights */
+.input-h-48 {
+  height: 48px !important;
+}
+
+.btn-h-48 {
+  height: 48px !important;
+}
+
+.btn-h-56 {
+  height: 56px !important;
+}
+

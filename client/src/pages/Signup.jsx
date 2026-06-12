@@ -96,7 +96,7 @@ const Signup = ({ onLoginSuccess, darkMode, toggleDarkMode }) => {
                 placeholder="Your name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="block w-full pl-10 pr-4 py-3 bg-white dark:bg-slate-900/60 border border-slate-200/80 dark:border-darkBorder/60 rounded-2xl text-xs font-semibold text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition"
+                className="block w-full pl-10 pr-4 h-12 bg-white dark:bg-slate-900/60 border border-slate-200/80 dark:border-darkBorder/60 rounded-2xl text-xs font-semibold text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition"
                 required
               />
             </div>
@@ -116,7 +116,7 @@ const Signup = ({ onLoginSuccess, darkMode, toggleDarkMode }) => {
                 placeholder="name@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="block w-full pl-10 pr-4 py-3 bg-white dark:bg-slate-900/60 border border-slate-200/80 dark:border-darkBorder/60 rounded-2xl text-xs font-semibold text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition"
+                className="block w-full pl-10 pr-4 h-12 bg-white dark:bg-slate-900/60 border border-slate-200/80 dark:border-darkBorder/60 rounded-2xl text-xs font-semibold text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition"
                 required
               />
             </div>
@@ -136,7 +136,7 @@ const Signup = ({ onLoginSuccess, darkMode, toggleDarkMode }) => {
                 placeholder="Minimum 6 characters"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="block w-full pl-10 pr-11 py-3 bg-white dark:bg-slate-900/60 border border-slate-200/80 dark:border-darkBorder/60 rounded-2xl text-xs font-semibold text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition"
+                className="block w-full pl-10 pr-11 h-12 bg-white dark:bg-slate-900/60 border border-slate-200/80 dark:border-darkBorder/60 rounded-2xl text-xs font-semibold text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition"
                 required
               />
               <button
@@ -153,7 +153,7 @@ const Signup = ({ onLoginSuccess, darkMode, toggleDarkMode }) => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full mt-2 py-3.5 bg-gradient-to-tr from-primary-600 to-indigo-500 hover:from-primary-500 hover:to-indigo-400 text-white font-bold rounded-2xl shadow-md shadow-primary-500/10 active:scale-[0.98] transition disabled:opacity-50 disabled:pointer-events-none text-xs tracking-wider uppercase"
+            className="w-full mt-2 h-13 bg-gradient-to-tr from-primary-600 to-indigo-500 hover:from-primary-500 hover:to-indigo-400 text-white font-bold rounded-2xl shadow-md shadow-primary-500/10 active:scale-[0.98] transition disabled:opacity-50 disabled:pointer-events-none text-xs tracking-wider uppercase flex items-center justify-center"
           >
             {loading ? 'Creating Account...' : 'Create Account'}
           </button>

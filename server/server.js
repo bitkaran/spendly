@@ -4,10 +4,12 @@ import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 import connectDB from './config/db.js';
 import authRoutes from './routes/auth.routes.js';
-import expenseRoutes from './routes/expense.routes.js';
+import transactionRoutes from './routes/transaction.routes.js';
 import categoryRoutes from './routes/category.routes.js';
 import analyticsRoutes from './routes/analytics.routes.js';
 import exportRoutes from './routes/export.routes.js';
+import userRoutes from './routes/user.routes.js';
+import budgetRoutes from './routes/budget.routes.js';
 
 // Load environment variables
 dotenv.config();
@@ -58,10 +60,13 @@ app.use(express.urlencoded({ extended: true }));
 
 // API Routes
 app.use('/api/auth', authRoutes);
-app.use('/api/expenses', expenseRoutes);
+app.use('/api/expenses', transactionRoutes); // backward compatibility
+app.use('/api/transactions', transactionRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/export', exportRoutes);
+app.use('/api/user', userRoutes);
+app.use('/api/budgets', budgetRoutes);
 
 // Health Check Route
 app.get('/api/health', (req, res) => {
