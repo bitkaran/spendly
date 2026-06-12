@@ -162,7 +162,7 @@ function AppContent() {
               path="/analytics"
               element={
                 isLoggedIn ? (
-                  <Analytics triggerRerender={triggerRerender} />
+                  <Analytics triggerRerender={triggerRerender} darkMode={darkMode} />
                 ) : (
                   <Navigate to="/login" replace />
                 )

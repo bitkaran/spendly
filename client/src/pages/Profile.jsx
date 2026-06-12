@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { User, LogOut, Download, Moon, Sun, Plus, Trash2, Tag, ShieldCheck, ChevronRight } from 'lucide-react';
+import { User, LogOut, Download, Moon, Sun, Plus, Trash2, Tag, ShieldCheck, ChevronRight, Info } from 'lucide-react';
 import api from '../utils/api';
 import toast from 'react-hot-toast';
 import ConfirmModal from '../components/ConfirmModal';
+import SpendlyLogo from '../components/SpendlyLogo';
 
 const Profile = ({ onLogout, darkMode, toggleDarkMode, categories = [], onCategoryChange }) => {
   const [user, setUser] = useState(null);
@@ -106,13 +107,13 @@ const Profile = ({ onLogout, darkMode, toggleDarkMode, categories = [], onCatego
   };
 
   return (
-    <div className="p-5 space-y-6 bg-slate-50/50 dark:bg-darkBg transition-colors duration-300 min-h-full">
+    <div className="p-4 space-y-5 bg-slate-50 dark:bg-darkBg transition-colors duration-300 min-h-full pb-28">
       {/* Title */}
       <div>
         <h2 className="text-xl font-extrabold text-slate-900 dark:text-white font-sans tracking-tight">
           Profile Settings
         </h2>
-        <p className="text-[10px] text-slate-455 dark:text-slate-400 font-extrabold uppercase tracking-wider">
+        <p className="text-[10px] text-slate-455 dark:text-slate-500 font-extrabold uppercase tracking-widest mt-0.5">
           Manage Account & Options
         </p>
       </div>
@@ -128,13 +129,13 @@ const Profile = ({ onLogout, darkMode, toggleDarkMode, categories = [], onCatego
               {user.name}
               <ShieldCheck className="h-4.5 w-4.5 text-primary-500 fill-primary-500/10" />
             </h3>
-            <p className="text-[10px] text-slate-500 dark:text-slate-400 font-semibold mt-1">{user.email}</p>
+            <p className="text-[10px] text-slate-500 dark:text-slate-400 font-bold mt-1.5">{user.email}</p>
           </div>
         </div>
       )}
 
-      {/* Category Management Drawer */}
-      <div className="bg-white dark:bg-darkCard p-5 border border-slate-100 dark:border-darkBorder/30 rounded-3xl shadow-sm space-y-4">
+      {/* Category Management Section */}
+      <div className="bg-white dark:bg-darkCard p-4.5 border border-slate-100 dark:border-darkBorder/30 rounded-3xl shadow-sm space-y-3.5">
         <h3 className="text-[10px] font-extrabold text-slate-400 dark:text-slate-400 uppercase tracking-widest flex items-center gap-2">
           <Tag className="h-3.5 w-3.5 text-primary-500" />
           Manage Categories
@@ -160,16 +161,16 @@ const Profile = ({ onLogout, darkMode, toggleDarkMode, categories = [], onCatego
           </button>
         </form>
 
-        {/* List of categories */}
-        <div className="max-h-52 overflow-y-auto no-scrollbar border border-slate-100 dark:border-darkBorder/25 rounded-2xl divide-y divide-slate-100 dark:divide-darkBorder/25">
+        {/* List of categories with fixed heights to avoid nav overlap */}
+        <div className="max-h-44 overflow-y-auto no-scrollbar border border-slate-100 dark:border-darkBorder/25 rounded-2xl divide-y divide-slate-100 dark:divide-darkBorder/25 bg-slate-50/10 dark:bg-slate-900/10">
           {categories.map((cat) => (
             <div
               key={cat._id}
-              className="px-3.5 py-2.5 flex items-center justify-between text-xs hover:bg-slate-50/50 dark:hover:bg-slate-900/10 font-bold"
+              className="px-3 py-2.5 flex items-center justify-between text-xs hover:bg-slate-50/50 dark:hover:bg-slate-900/5 font-bold"
             >
               <div className="flex items-center gap-2">
                 <span
-                  className={`w-2.5 h-2.5 rounded-full ${
+                  className={`w-2 h-2 rounded-full ${
                     cat.type === 'default' ? 'bg-primary-500' : 'bg-amber-500'
                   }`}
                 />
@@ -177,7 +178,7 @@ const Profile = ({ onLogout, darkMode, toggleDarkMode, categories = [], onCatego
                   {cat.name}
                 </span>
                 {cat.type === 'default' && (
-                  <span className="text-[8px] px-1.5 py-0.5 rounded bg-slate-50 dark:bg-slate-900/80 text-slate-400 dark:text-slate-500 font-extrabold tracking-wider uppercase border border-slate-100 dark:border-darkBorder/15">
+                  <span className="text-[7px] px-1.5 py-0.5 rounded bg-slate-50 dark:bg-slate-900 text-slate-450 dark:text-slate-500 font-extrabold tracking-wider uppercase border border-slate-100/50 dark:border-darkBorder/15">
                     System
                   </span>
                 )}
@@ -186,7 +187,7 @@ const Profile = ({ onLogout, darkMode, toggleDarkMode, categories = [], onCatego
               {cat.type === 'custom' && (
                 <button
                   onClick={() => handleDeleteCatRequest(cat)}
-                  className="p-1 rounded bg-slate-50 dark:bg-slate-900 text-slate-400 hover:text-red-500 border border-slate-100/50 dark:border-transparent transition"
+                  className="p-1 rounded bg-slate-50 dark:bg-slate-900 text-slate-450 hover:text-red-500 border border-slate-100/30 dark:border-transparent transition"
                   title="Delete Category"
                 >
                   <Trash2 className="h-3 w-3" />
@@ -201,7 +202,7 @@ const Profile = ({ onLogout, darkMode, toggleDarkMode, categories = [], onCatego
       <div className="bg-white dark:bg-darkCard border border-slate-100 dark:border-darkBorder/30 rounded-3xl shadow-sm overflow-hidden divide-y divide-slate-100 dark:divide-darkBorder/25">
         
         {/* Theme Toggler row */}
-        <div className="p-4.5 flex items-center justify-between hover:bg-slate-50/30 dark:hover:bg-slate-900/5 transition">
+        <div className="p-4 flex items-center justify-between hover:bg-slate-50/30 dark:hover:bg-slate-900/5 transition">
           <div className="flex items-center gap-3">
             <div className="p-2 rounded-xl bg-indigo-500/5 text-indigo-500">
               {darkMode ? <Sun className="h-4.5 w-4.5" /> : <Moon className="h-4.5 w-4.5" />}
@@ -214,7 +215,7 @@ const Profile = ({ onLogout, darkMode, toggleDarkMode, categories = [], onCatego
           <button
             onClick={toggleDarkMode}
             className={`w-9 h-5 rounded-full p-0.5 transition-colors duration-200 focus:outline-none ${
-              darkMode ? 'bg-indigo-600' : 'bg-slate-200 dark:bg-slate-800'
+              darkMode ? 'bg-indigo-650' : 'bg-slate-200 dark:bg-slate-800'
             }`}
           >
             <div
@@ -228,7 +229,7 @@ const Profile = ({ onLogout, darkMode, toggleDarkMode, categories = [], onCatego
         {/* Data export backup */}
         <div
           onClick={handleExportAllData}
-          className="p-4.5 flex items-center justify-between hover:bg-slate-50/50 dark:hover:bg-slate-900/5 transition cursor-pointer"
+          className="p-4 flex items-center justify-between hover:bg-slate-50/50 dark:hover:bg-slate-900/5 transition cursor-pointer"
         >
           <div className="flex items-center gap-3">
             <div className="p-2 rounded-xl bg-emerald-500/5 text-emerald-500">
@@ -245,7 +246,7 @@ const Profile = ({ onLogout, darkMode, toggleDarkMode, categories = [], onCatego
         {/* Logout Option */}
         <div
           onClick={onLogout}
-          className="p-4.5 flex items-center justify-between hover:bg-slate-50/50 dark:hover:bg-slate-900/5 transition cursor-pointer"
+          className="p-4 flex items-center justify-between hover:bg-slate-50/50 dark:hover:bg-slate-900/5 transition cursor-pointer"
         >
           <div className="flex items-center gap-3">
             <div className="p-2 rounded-xl bg-red-500/5 text-red-500">
@@ -260,13 +261,27 @@ const Profile = ({ onLogout, darkMode, toggleDarkMode, categories = [], onCatego
         </div>
       </div>
 
+      {/* App Branding Card */}
+      <div className="bg-white dark:bg-darkCard border border-slate-100 dark:border-darkBorder/30 rounded-3xl p-4.5 shadow-sm flex items-center gap-3.5 relative overflow-hidden">
+        <div className="absolute right-0 top-0 w-16 h-16 bg-primary-500/5 rounded-bl-full pointer-events-none" />
+        <div className="p-2.5 rounded-2xl bg-slate-50 dark:bg-slate-900/80 border border-slate-100 dark:border-darkBorder/20">
+          <SpendlyLogo size={32} />
+        </div>
+        <div className="space-y-0.5">
+          <h4 className="text-xs font-black text-slate-900 dark:text-white flex items-center gap-1.5 leading-none font-sans">
+            Spendly Tracker
+            <span className="text-[7px] px-1.5 py-0.5 rounded bg-primary-50 dark:bg-primary-950/30 text-primary-600 dark:text-primary-400 font-extrabold tracking-wider uppercase border border-primary-200/10">v1.0.0</span>
+          </h4>
+          <p className="text-[9px] font-bold text-slate-400 dark:text-slate-500 leading-relaxed pt-0.5">
+            A minimalist premium personal finance manager.
+          </p>
+        </div>
+      </div>
+
       {/* Footer Branding Info */}
-      <div className="text-center space-y-1 py-4">
-        <h4 className="text-[10px] font-extrabold text-slate-400 dark:text-slate-650 font-sans tracking-widest uppercase">
-          SPENDLY
-        </h4>
-        <p className="text-[8px] font-bold text-slate-400 dark:text-slate-700 mt-0.5">
-          Version 1.0.0 &bull; Build Stable
+      <div className="text-center space-y-1 py-3">
+        <p className="text-[8px] font-bold text-slate-400 dark:text-slate-700 uppercase tracking-widest leading-none">
+          Spendly Expense Tracker &bull; Stable Build
         </p>
       </div>
 

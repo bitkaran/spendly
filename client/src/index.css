@@ -1,6 +1,8 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
 @import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
   --color-primary-50: #eef2ff;
@@ -28,14 +30,14 @@
   --color-darkCard: #151c2c;
   --color-darkBorder: #222f47;
 
-  --font-sans: 'Inter', 'Outfit', 'sans-serif';
+  --font-sans: 'Plus Jakarta Sans', 'Outfit', 'Inter', 'sans-serif';
 
   --shadow-premium: 0 8px 32px 0 rgba(31, 38, 135, 0.08);
   --shadow-premium-dark: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
 }
 
 :root {
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, sans-serif;
   color-scheme: light dark;
 }
 

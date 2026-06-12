@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { IndianRupee, TrendingUp, Calendar, Tag, Trash2, Edit2, Plus, AlertCircle, ArrowUpRight } from 'lucide-react';
+import { IndianRupee, TrendingUp, Calendar, Tag, Trash2, Edit2, Plus, AlertCircle, ArrowUpRight, Wallet, ArrowDownLeft } from 'lucide-react';
 import api from '../utils/api';
 import toast from 'react-hot-toast';
 import ConfirmModal from '../components/ConfirmModal';
@@ -18,6 +18,9 @@ const Dashboard = ({ onOpenAddSheet, triggerRerender, categories = [] }) => {
   // Quick Filters
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [filteredExpenses, setFilteredExpenses] = useState([]);
+
+  // Mock Budget Limit (Can be configured or custom)
+  const monthlyBudget = 25000;
 
   useEffect(() => {
     // Load current user
@@ -81,32 +84,64 @@ const Dashboard = ({ onOpenAddSheet, triggerRerender, categories = [] }) => {
   // Get icons based on category
   const getCategoryIcon = (catName) => {
     const name = catName.toLowerCase();
-    if (name.includes('auto') || name.includes('metro') || name.includes('travel') || name.includes('coming') || name.includes('return')) {
-      return '🚗';
+    if (name.includes('auto') || name.includes('travel') || name.includes('return auto')) {
+      return '🛺';
     }
-    if (name.includes('lunch') || name.includes('dinner') || name.includes('food') || name.includes('tea') || name.includes('snacks')) {
-      return '🍔';
+    if (name.includes('metro')) {
+      return '🚇';
+    }
+    if (name.includes('lunch') || name.includes('food')) {
+      return '🍱';
+    }
+    if (name.includes('dinner')) {
+      return '🍲';
+    }
+    if (name.includes('tea') || name.includes('snacks')) {
+      return '☕';
     }
     return '💳';
   };
 
   const getCategoryBgColor = (catName) => {
     const name = catName.toLowerCase();
-    if (name.includes('auto') || name.includes('metro') || name.includes('travel')) {
-      return 'bg-blue-50/80 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 border border-blue-100/30 dark:border-blue-900/20';
+    if (name.includes('auto') || name.includes('travel') || name.includes('return auto')) {
+      return 'bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 border border-blue-100/30 dark:border-blue-900/20';
     }
-    if (name.includes('lunch') || name.includes('dinner') || name.includes('food')) {
-      return 'bg-emerald-50/80 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 border border-emerald-100/30 dark:border-emerald-900/20';
+    if (name.includes('metro')) {
+      return 'bg-cyan-50 dark:bg-cyan-950/40 text-cyan-600 dark:text-cyan-400 border border-cyan-100/30 dark:border-cyan-900/20';
+    }
+    if (name.includes('lunch') || name.includes('food')) {
+      return 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 border border-emerald-100/30 dark:border-emerald-900/20';
+    }
+    if (name.includes('dinner')) {
+      return 'bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 border border-indigo-100/30 dark:border-indigo-900/20';
     }
     if (name.includes('tea') || name.includes('snacks')) {
-      return 'bg-amber-50/80 dark:bg-amber-950/40 text-amber-600 dark:text-amber-450 border border-amber-100/30 dark:border-amber-900/20';
+      return 'bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-450 border border-amber-100/30 dark:border-amber-900/20';
     }
     return 'bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-100 dark:border-slate-700/30';
   };
 
+  // Get total for specifically Travel, Food and others for mini cards
+  const getSpecificCategoryTotal = (catKeywords) => {
+    return categoryTotals
+      .filter((item) =>
+        catKeywords.some((keyword) => item.name.toLowerCase().includes(keyword))
+      )
+      .reduce((sum, item) => sum + item.value, 0);
+  };
+
+  const travelTotal = getSpecificCategoryTotal(['auto', 'metro', 'travel']);
+  const foodTotal = getSpecificCategoryTotal(['lunch', 'dinner', 'snacks', 'tea', 'food']);
+  
+  // Calculate remaining budget details
+  const totalSpentMonth = summary.monthTotal || 0;
+  const budgetRemaining = Math.max(0, monthlyBudget - totalSpentMonth);
+  const budgetPercentage = Math.min(100, (totalSpentMonth / monthlyBudget) * 100);
+
   if (loading) {
     return (
-      <div className="p-5 space-y-6 animate-pulse">
+      <div className="p-5 space-y-6 animate-pulse bg-slate-50 dark:bg-darkBg min-h-full">
         {/* User profile skeleton */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -119,22 +154,13 @@ const Dashboard = ({ onOpenAddSheet, triggerRerender, categories = [] }) => {
           <div className="w-10 h-10 bg-slate-200 dark:bg-slate-800 rounded-xl" />
         </div>
         
-        {/* Metric Cards Skeleton */}
+        {/* Wallet Skeleton */}
+        <div className="h-36 bg-slate-200 dark:bg-slate-800 rounded-3xl" />
+
+        {/* Metrics Grid Skeleton */}
         <div className="grid grid-cols-2 gap-4">
           <div className="h-28 bg-slate-200 dark:bg-slate-800 rounded-3xl" />
           <div className="h-28 bg-slate-200 dark:bg-slate-800 rounded-3xl" />
-        </div>
-
-        {/* Progress list Skeleton */}
-        <div className="space-y-3 bg-white dark:bg-darkCard p-5 rounded-3xl border border-slate-100 dark:border-darkBorder/40">
-          <div className="h-3 w-32 bg-slate-200 dark:bg-slate-800 rounded" />
-          <div className="h-16 bg-slate-100 dark:bg-slate-900/40 rounded-2xl" />
-        </div>
-
-        {/* List Skeleton */}
-        <div className="space-y-3">
-          <div className="h-3.5 w-40 bg-slate-200 dark:bg-slate-800 rounded" />
-          <div className="h-44 bg-slate-200 dark:bg-slate-800 rounded-3xl" />
         </div>
       </div>
     );
@@ -142,10 +168,10 @@ const Dashboard = ({ onOpenAddSheet, triggerRerender, categories = [] }) => {
 
   if (error) {
     return (
-      <div className="p-8 text-center flex flex-col items-center justify-center min-h-[70vh]">
+      <div className="p-8 text-center flex flex-col items-center justify-center min-h-[70vh] bg-slate-50 dark:bg-darkBg">
         <AlertCircle className="h-12 w-12 text-red-500 mb-3" />
         <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">Error Loading Dashboard</h3>
-        <p className="text-xs text-slate-500 dark:text-slate-450 mb-6">{error}</p>
+        <p className="text-xs text-slate-550 dark:text-slate-400 mb-6">{error}</p>
         <button
           onClick={fetchDashboardData}
           className="px-5 py-2.5 bg-primary-600 hover:bg-primary-700 text-white rounded-2xl font-bold shadow-md transition"
@@ -157,132 +183,174 @@ const Dashboard = ({ onOpenAddSheet, triggerRerender, categories = [] }) => {
   }
 
   return (
-    <div className="p-5 space-y-6 bg-slate-50/50 dark:bg-darkBg transition-colors duration-300 min-h-full">
+    <div className="p-4 space-y-5 bg-slate-50 dark:bg-darkBg transition-colors duration-300 min-h-full pb-8">
       
-      {/* Premium Greeting Widget */}
+      {/* Premium Greeting Card */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="h-11 w-11 rounded-[18px] bg-gradient-to-tr from-primary-600 to-indigo-500 text-white font-black text-sm flex items-center justify-center shadow-md shadow-indigo-500/10">
-            {user ? user.name.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase() : 'S'}
-          </div>
-          <div>
-            <h2 className="text-lg font-black text-slate-900 dark:text-white tracking-tight">
-              Hi, {user ? user.name.split(' ')[0] : 'Guest'} 👋
-            </h2>
-            <p className="text-[10px] text-slate-450 dark:text-slate-400 font-extrabold uppercase tracking-wider">
-              {new Date().toLocaleDateString('en-IN', { weekday: 'short', month: 'short', day: 'numeric' })}
-            </p>
-          </div>
+        <div>
+          <h2 className="text-lg font-black text-slate-900 dark:text-white tracking-tight">
+            Hi, {user ? user.name.split(' ')[0] : 'Guest'} 👋
+          </h2>
+          <p className="text-[10px] text-slate-450 dark:text-slate-500 font-extrabold uppercase tracking-widest mt-0.5">
+            Let's manage your budget
+          </p>
         </div>
         
-        {/* Quick Add Button */}
-        <button
-          onClick={() => onOpenAddSheet(null)}
-          className="h-10 w-10 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl hover:bg-slate-800 dark:hover:bg-slate-100 active:scale-95 transition flex items-center justify-center shadow-sm"
-          aria-label="Add Expense"
-          title="Add Expense"
-        >
-          <Plus className="h-5 w-5 stroke-[2.5]" />
-        </button>
+        {/* Calendar widget info */}
+        <div className="px-3 py-1.5 rounded-xl bg-white dark:bg-darkCard border border-slate-100 dark:border-darkBorder/40 text-[10px] font-extrabold text-slate-600 dark:text-slate-350 shadow-sm flex items-center gap-1.5">
+          <Calendar className="h-3.5 w-3.5 text-primary-500" />
+          {new Date().toLocaleDateString('en-IN', { month: 'short', day: 'numeric' })}
+        </div>
       </div>
 
-      {/* Metrics Cards */}
-      <div className="grid grid-cols-2 gap-4">
-        {/* Today */}
-        <div className="bg-white dark:bg-darkCard p-4 rounded-3xl border border-slate-100 dark:border-darkBorder/40 shadow-sm relative overflow-hidden">
-          <div className="absolute right-3 top-3 text-emerald-500 bg-emerald-500/5 dark:bg-emerald-500/10 p-1.5 rounded-lg">
+      {/* Spendly Wallet/Budget Visual Card (Swiggy / Mobile Card look) */}
+      <div className="relative overflow-hidden bg-gradient-to-br from-indigo-900 via-primary-850 to-emerald-900 text-white rounded-[28px] p-5 shadow-lg shadow-indigo-950/15">
+        {/* Background visual geometric accents */}
+        <div className="absolute -right-6 -bottom-6 w-32 h-32 rounded-full bg-emerald-500/10 blur-xl pointer-events-none" />
+        <div className="absolute -left-6 -top-6 w-32 h-32 rounded-full bg-indigo-500/10 blur-xl pointer-events-none" />
+
+        <div className="flex justify-between items-start">
+          <div className="space-y-0.5">
+            <span className="text-[9px] font-bold text-indigo-200 uppercase tracking-widest flex items-center gap-1">
+              <Wallet className="h-3 w-3 text-emerald-400" />
+              Spendly Active Wallet
+            </span>
+            <h3 className="text-2xl font-black font-sans leading-none pt-1">
+              ₹{budgetRemaining.toLocaleString('en-IN')}
+            </h3>
+            <span className="text-[9px] font-medium text-indigo-200/80 block pt-0.5">
+              Remaining Monthly Budget (Limit: ₹{monthlyBudget.toLocaleString('en-IN')})
+            </span>
+          </div>
+          
+          <div className="bg-white/10 backdrop-blur-md px-2.5 py-1.5 rounded-xl border border-white/10 text-[9px] font-bold uppercase tracking-wider text-emerald-300">
+            Active Status
+          </div>
+        </div>
+
+        {/* Budget Progress bar */}
+        <div className="mt-5 space-y-1.5">
+          <div className="flex justify-between items-center text-[9px] font-bold text-indigo-200">
+            <span>{budgetPercentage.toFixed(0)}% Spent</span>
+            <span>₹{totalSpentMonth.toLocaleString('en-IN')} / ₹{monthlyBudget.toLocaleString('en-IN')}</span>
+          </div>
+          <div className="w-full h-2 bg-white/10 rounded-full overflow-hidden">
+            <div
+              className={`h-full rounded-full transition-all duration-500 ${
+                budgetPercentage > 85
+                  ? 'bg-rose-500'
+                  : budgetPercentage > 60
+                  ? 'bg-amber-400'
+                  : 'bg-emerald-400'
+              }`}
+              style={{ width: `${budgetPercentage}%` }}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Today Total, Monthly Total & Mini Category Cards */}
+      <div className="grid grid-cols-2 gap-3">
+        {/* Today Total Card */}
+        <div className="bg-white dark:bg-darkCard p-3.5 rounded-2xl border border-slate-100 dark:border-darkBorder/30 shadow-sm flex flex-col justify-between relative overflow-hidden">
+          <div className="absolute right-2 top-2 bg-emerald-500/5 dark:bg-emerald-500/10 p-1 rounded-lg text-emerald-500">
             <TrendingUp className="h-3.5 w-3.5" />
           </div>
-          <p className="text-[9px] font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
+          <span className="text-[9px] font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
             Today
-          </p>
-          <h3 className="text-xl font-black text-slate-900 dark:text-white mt-2 flex items-baseline font-sans">
-            <span className="text-xs font-bold mr-0.5 text-slate-500 dark:text-slate-400">₹</span>
-            {(summary.todayTotal || 0).toLocaleString('en-IN')}
-          </h3>
-          <span className="text-[9px] font-bold text-slate-400 dark:text-slate-500 mt-1 block">
-            Spent since midnight
           </span>
+          <div className="mt-3.5">
+            <h4 className="text-lg font-black text-slate-900 dark:text-white leading-none font-sans">
+              ₹{summary.todayTotal.toLocaleString('en-IN')}
+            </h4>
+            <span className="text-[8px] font-bold text-slate-400 dark:text-slate-500 mt-1 block">
+              Spent today
+            </span>
+          </div>
         </div>
 
-        {/* This Month */}
-        <div className="bg-white dark:bg-darkCard p-4 rounded-3xl border border-slate-100 dark:border-darkBorder/40 shadow-sm relative overflow-hidden">
-          <div className="absolute right-3 top-3 text-indigo-500 bg-indigo-500/5 dark:bg-indigo-500/10 p-1.5 rounded-lg">
+        {/* This Month Card */}
+        <div className="bg-white dark:bg-darkCard p-3.5 rounded-2xl border border-slate-100 dark:border-darkBorder/30 shadow-sm flex flex-col justify-between relative overflow-hidden">
+          <div className="absolute right-2 top-2 bg-indigo-500/5 dark:bg-indigo-500/10 p-1 rounded-lg text-indigo-500">
             <ArrowUpRight className="h-3.5 w-3.5" />
           </div>
-          <p className="text-[9px] font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
+          <span className="text-[9px] font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
             This Month
-          </p>
-          <h3 className="text-xl font-black text-slate-900 dark:text-white mt-2 flex items-baseline font-sans">
-            <span className="text-xs font-bold mr-0.5 text-slate-500 dark:text-slate-400">₹</span>
-            {(summary.monthTotal || 0).toLocaleString('en-IN')}
-          </h3>
-          <span className="text-[9px] font-bold text-slate-400 dark:text-slate-500 mt-1 block">
-            Current billing cycle
           </span>
+          <div className="mt-3.5">
+            <h4 className="text-lg font-black text-slate-900 dark:text-white leading-none font-sans">
+              ₹{summary.monthTotal.toLocaleString('en-IN')}
+            </h4>
+            <span className="text-[8px] font-bold text-slate-400 dark:text-slate-500 mt-1 block">
+              Spent this cycle
+            </span>
+          </div>
+        </div>
+
+        {/* Travel Mini Card */}
+        <div className="bg-white dark:bg-darkCard p-3.5 rounded-2xl border border-slate-100 dark:border-darkBorder/30 shadow-sm flex flex-col justify-between relative overflow-hidden">
+          <div className="absolute right-2 top-2 bg-blue-500/5 dark:bg-blue-500/10 p-1 rounded-lg text-blue-500 text-xs">
+            🛺
+          </div>
+          <span className="text-[9px] font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
+            Travel
+          </span>
+          <div className="mt-3.5">
+            <h4 className="text-base font-black text-slate-900 dark:text-white leading-none font-sans">
+              ₹{travelTotal.toLocaleString('en-IN')}
+            </h4>
+            <span className="text-[8px] font-bold text-slate-400 dark:text-slate-500 mt-1 block">
+              Auto/Metro logs
+            </span>
+          </div>
+        </div>
+
+        {/* Food Mini Card */}
+        <div className="bg-white dark:bg-darkCard p-3.5 rounded-2xl border border-slate-100 dark:border-darkBorder/30 shadow-sm flex flex-col justify-between relative overflow-hidden">
+          <div className="absolute right-2 top-2 bg-amber-500/5 dark:bg-amber-500/10 p-1 rounded-lg text-amber-500 text-xs">
+            🍱
+          </div>
+          <span className="text-[9px] font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
+            Food & Dining
+          </span>
+          <div className="mt-3.5">
+            <h4 className="text-base font-black text-slate-900 dark:text-white leading-none font-sans">
+              ₹{foodTotal.toLocaleString('en-IN')}
+            </h4>
+            <span className="text-[8px] font-bold text-slate-400 dark:text-slate-500 mt-1 block">
+              Lunch/Dinner/Tea
+            </span>
+          </div>
         </div>
       </div>
 
-      {/* Top Categories Distribution */}
-      {((categoryTotals || []).length > 0) && (
-        <div className="bg-white dark:bg-darkCard rounded-3xl p-5 border border-slate-100 dark:border-darkBorder/40 shadow-sm">
-          <h3 className="text-[10px] font-extrabold text-slate-400 dark:text-slate-400 uppercase tracking-widest mb-4">
-            Top Categories
-          </h3>
-          <div className="space-y-3.5">
-            {(categoryTotals || []).slice(0, 3).map((item, idx) => {
-              const maxVal = (categoryTotals || [])[0]?.value || 1;
-              const percent = (item.value / maxVal) * 100;
-              return (
-                <div key={idx} className="space-y-1.5">
-                  <div className="flex justify-between items-center text-xs font-bold">
-                    <span className="text-slate-700 dark:text-slate-300">
-                      {item.name}
-                    </span>
-                    <span className="text-slate-900 dark:text-white font-extrabold">
-                      ₹{item.value.toLocaleString('en-IN')}
-                    </span>
-                  </div>
-                  <div className="w-full h-1.5 bg-slate-100 dark:bg-slate-900/60 rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-gradient-to-r from-primary-600 to-indigo-500 dark:from-primary-500 dark:to-indigo-400 rounded-full"
-                      style={{ width: `${percent}%` }}
-                    />
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
-
-      {/* Recent Spending with Scrollable Filters */}
-      <div className="space-y-3">
+      {/* Category Chips Selector - Animated horizontal list */}
+      <div className="space-y-3 pt-1">
         <div className="flex items-center justify-between">
-          <h3 className="text-[10px] font-extrabold text-slate-400 dark:text-slate-400 uppercase tracking-widest">
+          <h3 className="text-[10px] font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
             Recent Spending
           </h3>
           
-          {/* Quick Filters - Horizontal Scrollable Pills */}
-          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar max-w-[65%] scroll-smooth py-0.5">
+          {/* Animated pills scroll */}
+          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar scroll-smooth max-w-[65%] py-0.5">
             <button
               onClick={() => setSelectedCategory('All')}
-              className={`px-3 py-1 rounded-xl text-[9px] font-bold border whitespace-nowrap transition-all ${
+              className={`px-3 py-1 rounded-xl text-[9px] font-bold border transition-all duration-200 active:scale-95 ${
                 selectedCategory === 'All'
                   ? 'bg-slate-900 border-slate-900 text-white dark:bg-white dark:border-white dark:text-slate-950 shadow-sm'
-                  : 'bg-white border-slate-100 dark:bg-darkCard dark:border-darkBorder/40 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
+                  : 'bg-white border-slate-100 dark:bg-darkCard dark:border-darkBorder/40 text-slate-500 dark:text-slate-400'
               }`}
             >
               All
             </button>
-            {(categories || []).slice(0, 5).map((cat) => (
+            {categories.slice(0, 6).map((cat) => (
               <button
                 key={cat._id}
                 onClick={() => setSelectedCategory(cat.name)}
-                className={`px-3 py-1 rounded-xl text-[9px] font-bold border whitespace-nowrap transition-all ${
+                className={`px-3 py-1 rounded-xl text-[9px] font-bold border transition-all duration-200 active:scale-95 whitespace-nowrap ${
                   selectedCategory === cat.name
                     ? 'bg-slate-900 border-slate-900 text-white dark:bg-white dark:border-white dark:text-slate-950 shadow-sm'
-                    : 'bg-white border-slate-100 dark:bg-darkCard dark:border-darkBorder/40 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
+                    : 'bg-white border-slate-100 dark:bg-darkCard dark:border-darkBorder/40 text-slate-500 dark:text-slate-400'
                 }`}
               >
                 {cat.name}
@@ -291,20 +359,25 @@ const Dashboard = ({ onOpenAddSheet, triggerRerender, categories = [] }) => {
           </div>
         </div>
 
-        {/* Expenses List */}
+        {/* Expenses List / Mobile Transaction Cards */}
         {(!filteredExpenses || filteredExpenses.length === 0) ? (
-          <div className="bg-white dark:bg-darkCard border border-slate-100 dark:border-darkBorder/40 rounded-3xl p-8 text-center flex flex-col items-center justify-center">
-            <div className="h-11 w-11 bg-slate-50 dark:bg-slate-900/60 border border-slate-100 dark:border-darkBorder/30 text-slate-400 dark:text-slate-500 rounded-2xl flex items-center justify-center mb-3">
-              <Tag className="h-4.5 w-4.5" />
+          /* SVG/CSS Empty state illustration */
+          <div className="bg-white dark:bg-darkCard border border-slate-100 dark:border-darkBorder/40 rounded-3xl p-8 text-center flex flex-col items-center justify-center shadow-sm">
+            <div className="w-16 h-16 rounded-2xl bg-indigo-50/80 dark:bg-slate-900/80 flex items-center justify-center mb-4 border border-indigo-100/30 dark:border-darkBorder/15">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none" className="w-10 h-10 text-primary-500/80">
+                <rect x="20" y="30" width="60" height="40" rx="10" stroke="currentColor" strokeWidth="6" strokeLinejoin="round" />
+                <circle cx="70" cy="50" r="6" fill="currentColor" />
+                <path d="M40 45 L50 45 L50 55" stroke="currentColor" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
             </div>
-            <p className="text-xs font-extrabold text-slate-900 dark:text-white">No expenses recorded</p>
+            <p className="text-xs font-black text-slate-900 dark:text-white">No expenses recorded</p>
             <p className="text-[10px] text-slate-455 dark:text-slate-450 mt-1 max-w-xs leading-relaxed">
-              Tap the '+' button in the header or use the bottom navigation bar to record an expense!
+              You haven't added any spending records yet. Tap the floating '+' button below to save your first expense!
             </p>
           </div>
         ) : (
           <div className="space-y-2.5">
-            {(filteredExpenses || []).map((expense) => (
+            {filteredExpenses.map((expense) => (
               <div
                 key={expense._id}
                 className="bg-white dark:bg-darkCard p-3 rounded-2xl border border-slate-100 dark:border-darkBorder/30 shadow-sm flex items-center justify-between hover:scale-[1.005] transition-all"
@@ -312,7 +385,7 @@ const Dashboard = ({ onOpenAddSheet, triggerRerender, categories = [] }) => {
                 <div className="flex items-center gap-3 min-w-0">
                   {/* Category icon avatar */}
                   <div
-                    className={`h-10 w-10 rounded-[14px] flex items-center justify-center text-lg shrink-0 shadow-sm ${getCategoryBgColor(
+                    className={`h-10 w-10 rounded-xl flex items-center justify-center text-lg shrink-0 shadow-sm ${getCategoryBgColor(
                       expense.category
                     )}`}
                   >
@@ -320,16 +393,16 @@ const Dashboard = ({ onOpenAddSheet, triggerRerender, categories = [] }) => {
                   </div>
                   {/* Details */}
                   <div className="min-w-0">
-                    <h4 className="text-xs font-bold text-slate-900 dark:text-white truncate">
+                    <h4 className="text-xs font-extrabold text-slate-900 dark:text-white truncate">
                       {expense.category}
                     </h4>
                     {expense.remark && (
-                      <p className="text-[9px] text-slate-450 dark:text-slate-400 truncate font-semibold mt-0.5">
+                      <p className="text-[9px] text-slate-500 dark:text-slate-400 truncate font-semibold mt-0.5">
                         {expense.remark}
                       </p>
                     )}
                     <div className="flex items-center gap-1.5 mt-1">
-                      <span className="text-[8px] px-1.5 py-0.5 rounded bg-slate-50 dark:bg-slate-900/50 text-slate-500 dark:text-slate-400 font-bold border border-slate-100 dark:border-darkBorder/15">
+                      <span className="text-[8px] px-1.5 py-0.5 rounded bg-slate-50 dark:bg-slate-900/50 text-slate-550 dark:text-slate-400 font-bold border border-slate-100/50 dark:border-darkBorder/20">
                         {expense.paymentMode}
                       </span>
                       <span className="text-[8px] text-slate-400 dark:text-slate-500 font-bold">
@@ -342,24 +415,23 @@ const Dashboard = ({ onOpenAddSheet, triggerRerender, categories = [] }) => {
                   </div>
                 </div>
 
-                {/* Amount and Operations */}
+                {/* Amount & Quick Actions */}
                 <div className="flex items-center gap-2">
                   <span className="text-xs font-black text-slate-900 dark:text-white font-sans mr-1.5">
                     ₹{expense.amount.toLocaleString('en-IN', { minimumFractionDigits: 0 })}
                   </span>
 
-                  {/* Actions buttons */}
                   <div className="flex items-center gap-1">
                     <button
                       onClick={() => onOpenAddSheet(expense)}
-                      className="p-1.5 rounded-lg bg-slate-50 dark:bg-slate-900 text-slate-400 hover:text-slate-800 dark:hover:text-white border border-slate-100/50 dark:border-transparent transition-all"
+                      className="p-1.5 rounded-lg bg-slate-50 dark:bg-slate-900 text-slate-400 hover:text-slate-800 dark:hover:text-white border border-slate-100/30 dark:border-transparent transition-all active:scale-90"
                       aria-label="Edit"
                     >
                       <Edit2 className="h-3 w-3" />
                     </button>
                     <button
                       onClick={() => handleDeleteRequest(expense)}
-                      className="p-1.5 rounded-lg bg-slate-50 dark:bg-slate-900 text-slate-400 hover:text-red-500 border border-slate-100/50 dark:border-transparent transition-all"
+                      className="p-1.5 rounded-lg bg-slate-50 dark:bg-slate-900 text-slate-400 hover:text-red-500 border border-slate-100/30 dark:border-transparent transition-all active:scale-90"
                       aria-label="Delete"
                     >
                       <Trash2 className="h-3 w-3" />
